@@ -12,7 +12,7 @@ class StoreMysql:
         self.port = 3306
         self.username = "root"
         self.password = "root"
-        self.database = "store"
+        self.database = "drives_management"
         self.charset = "utf8"
         self.db = pymysql.connect(self.ip, self.username, self.password,
                                   self.database, port=self.port, use_unicode=True,
@@ -32,7 +32,6 @@ class StoreMysql:
             print('[-]         Failure       [-]\n')
             self.db.rollback()
             return False
-            pass
 
     # 获取用户表所有数据
     def get_userinfo(self):
@@ -46,7 +45,7 @@ class StoreMysql:
 
     # 获取用户表所有数据
     def get_goodsinfo(self):
-        sql = "SELECT * FROM `goodsinfo`"
+        sql = "SELECT * FROM `drives`"
         data = self.operational_data(sql).fetchall()
         # print(data)
         # for x in data:
@@ -56,7 +55,7 @@ class StoreMysql:
 
     # 获取销售表所有数据
     def get_salesinfo(self):
-        sql = "SELECT * FROM `salesinfo`"
+        sql = "SELECT * FROM `driveinfo`"
         data = self.operational_data(sql).fetchall()
         # print(data)
         # for x in data:

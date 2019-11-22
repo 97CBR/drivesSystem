@@ -24,9 +24,6 @@ import datetime
 
 # import DatabaseModel
 
-# from ParkSystem.take_photo import takephoto
-# ID, CATEGORY, SHORTDESC, LONGDESC = range(4)
-
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
@@ -36,20 +33,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.buttonConnect()
 
-        # queryTop100GoodsInfo
-        self.userinfo = StoreMysql().get_userinfo()
-        # self.userinfo=
+        self.user_info = StoreMysql().get_userinfo()
         self.userType = ""
-
-        self.myview()
+        self.my_view()
 
         self.data = StoreMysql().get_goodsinfo()
 
         self.pay = 0.0
 
-        self.mylist.hide()
-
-    def curlmd5(self, src):
+    @staticmethod
+    def calculate_md5(src):
         m = hashlib.md5()
         m.update(src.encode('UTF-8'))
         return m.hexdigest()
@@ -57,21 +50,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def logout(self):
         self.stackedWidget.setCurrentWidget(self.loginwidget)
 
-    def mylogin(self):
+    def try_login(self):
         print("准备登陆")
         username = self.username.text()
         password = self.password.text()
-        if (username != '' or password != ''):
+        if '' != username or '' != password:
             print(username, password)
-            pwd = self.curlmd5(password)
+            pwd = self.calculate_md5(password)
             print("加密", pwd)
-            for info in self.userinfo:
+            for info in self.user_info:
                 if username in info:
-                    print("md5密码：", info[3])
-                    if pwd == info[3]:
+                    print("md5密码：", info[2])
+                    if pwd == info[2]:
                         # print('密码输入正常')
                         self.loginmessage.setText("密码输入正常")
-                        self.userType = info[2]
+                        self.userType = info[3]
                         self.welcomeUser.setText("欢迎您：{}".format(info[1]))
                         break
                     else:
@@ -107,7 +100,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                       orgin_number=orginnumber, barcode=barcode)
         if statu:
             self.ware_message.setText('成功添加')
-            self.myview()
+            self.my_view()
             # self.statusbar.setStatusTip("成功添加")
         else:
             self.ware_message.setText('添加失败')
@@ -132,7 +125,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         statu = StoreMysql().update_goodsinfo(oldid, bank, goodsname, barcode, purchaseprice, orginnumber, count, price)
         if statu:
             self.ware_message.setText('成功修改')
-            self.myview()
+            self.my_view()
         else:
             self.ware_message.setText('修改失败')
 
@@ -143,14 +136,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         statu = StoreMysql().delete_goodsinfo(oldid)
         if statu:
             self.ware_message.setText('删除成功')
-            self.myview()
+            self.my_view()
         else:
             self.ware_message.setText('删除失败')
         return True
 
     # 刷新进货tablewidget
 
-    def myview(self):
+    def my_view(self):
         _translate = QtCore.QCoreApplication.translate
         # self.tableWidget.verticalHeader().setVisible(False)
         item = self.tableWidget.horizontalHeaderItem(5)
@@ -300,7 +293,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         password_2 = self.resigner_password_2.text()
         if (username != '') and (password_1 != '') and (password_2 != '') and password_1 == password_2:
             resigner_type = self.resign_type.currentText()
-            pwd = self.curlmd5(password_2)
+            pwd = self.calculate_md5(password_2)
             print("加密", pwd)
 
             statu = StoreMysql().resign_user(username, resigner_type, pwd)
@@ -326,7 +319,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if statu:
                 self.delete_username.clear()
                 self.loginmessage_3.setText('成功删除')
-                self.myview()
+                self.my_view()
             else:
                 self.delete_username.clear()
 
@@ -343,7 +336,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if statu:
                 self.change_username.clear()
                 self.loginmessage_4.setText('成功修改')
-                self.myview()
+                self.my_view()
             else:
                 self.change_username.clear()
                 self.loginmessage_4.setText('修改失败')
@@ -386,8 +379,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.stackedWidget.setCurrentWidget(self.adminwidget)
         self.btn.hide()
 
-    def changeProfit(self):
-        self.adminstacked.setCurrentWidget(self.changeProfitwidget)
+    # def changeProfit(self):
+    #     self.adminstacked.setCurrentWidget(self.changeProfitwidget)
+    #     self.profitreflash()
+        # profitreflash
+
+    def press_change_logs(self):
+        self.adminstacked.setCurrentWidget(self.change_log_widget)
         self.profitreflash()
         # profitreflash
 
@@ -674,7 +672,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     pass
 
     def buttonConnect(self):
-        self.login.clicked.connect(self.mylogin)
+        self.login.clicked.connect(self.try_login)
         self.ware_add.clicked.connect(self.wareAdd)
         self.ware_change.clicked.connect(self.wareChange)
         self.ware_delete.clicked.connect(self.wareDelete)
@@ -686,7 +684,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.change_man.clicked.connect(self.changeUser)
         self.customer_button.clicked.connect(self.customerInfo)
         self.changestoresattributes.clicked.connect(self.changeStoresAttributes)
-        self.changeprofitbutton.clicked.connect(self.changeProfit)
+        # self.changeprofitbutton.clicked.connect(self.changeProfit)
+        self.change_logs.clicked.connect(self.press_change_logs)
         self.ware_change_2.clicked.connect(self.profitChange)
         self.buttonexportexecl.clicked.connect(self.exportExecl)
         self.queryCustomerInfoButton.clicked.connect(self.queryCustomerInfo)

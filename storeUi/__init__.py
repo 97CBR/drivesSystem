@@ -10,4 +10,4 @@ def curlmd5(src):
     m.update(src.encode('UTF-8'))
     return m.hexdigest()
 
-print(curlmd5('admin'))
+print(curlmd5('hr'))
