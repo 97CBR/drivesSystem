@@ -54,8 +54,8 @@ class StoreMysql:
         return data
 
     # 获取销售表所有数据
-    def get_salesinfo(self):
-        sql = "SELECT * FROM `driveinfo`"
+    def get_logs_records(self):
+        sql = "SELECT * FROM `log_view`"
         data = self.operational_data(sql).fetchall()
         # print(data)
         # for x in data:

@@ -83,7 +83,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif self.userType == 'analyst':
             self.stackedWidget.setCurrentWidget(self.analysiswidget)
         elif self.userType == 'ware':
-            self.stackedWidget.setCurrentWidget(self.warewidget)
+            self.stackedWidget.setCurrentWidget(self.record_drives_widget)
         else:
             ...
         # print(username,password)
@@ -168,34 +168,35 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 else:
                     pass
 
-    def profitChange(self):
-        nowrow = self.tableWidget_2.currentRow()
-        print("当前行", nowrow)
+    def press_change_logs_btn(self):
+        now_row = self.log_widget.currentRow()
+        print("当前行", now_row)
         # a,b,c,d,e,f
-        id = self.tableWidget_2.item(nowrow, 0).text()
+        log_id = self.log_widget.item(now_row, 0).text()
         # ppp=self.tableWidget.item
-        bank = self.tableWidget_2.item(nowrow, 1).text()
-        goodsname = self.tableWidget_2.item(nowrow, 2).text()
-        barcode = self.tableWidget_2.item(nowrow, 3).text()
-        salesnumber = self.tableWidget_2.item(nowrow, 4).text()
-        remainnumber = self.tableWidget_2.item(nowrow, 5).text()
-        profit = self.tableWidget_2.item(nowrow, 6).text()
+        record = self.log_widget.item(now_row, 1).text()
+        user_id = self.log_widget.item(now_row, 2).text()
+        user_name = self.log_widget.item(now_row, 3).text()
+        drive_name = self.log_widget.item(now_row, 4).text()
+        drive_id = self.log_widget.item(now_row, 5).text()
+        version = self.log_widget.item(now_row, 6).text()
 
-        oldid = self.data[nowrow][0]
+        old_id = self.data[now_row][0]
 
-        print(id, bank, goodsname)
-        statu = StoreMysql().update_salesinfo(oldid, bank, goodsname, barcode, salesnumber, remainnumber, profit)
-        if statu:
+        print(log_id, record, user_id)
+        # 修改数据库 TODO: 待改进此数据库语句
+        status = StoreMysql().update_salesinfo(old_id, record, user_id, user_name, drive_name, drive_id, version)
+        if status:
             self.ware_message.setText('成功修改')
-            self.profitreflash()
+            self.refresh_logs_widget()
         else:
             self.ware_message.setText('修改失败')
 
-    def profitreflash(self):
+    def refresh_logs_widget(self):
 
-        self.data = StoreMysql().get_salesinfo()
+        self.data = StoreMysql().get_logs_records()
 
-        self.tableWidget_2.setRowCount(len(self.data))
+        self.log_widget.setRowCount(len(self.data))
         for x, info in enumerate(self.data):
             print(x, info)
             for y, cell in enumerate(info):
@@ -203,7 +204,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if y < 7:
                     try:
                         item = QtWidgets.QTableWidgetItem(str(cell))
-                        self.tableWidget_2.setItem(x, y, item)
+                        self.log_widget.setItem(x, y, item)
                         # item = self.tableWidget.item(x, y)
                         # item.setText(_translate("MainWindow",str(cell)))
                     except:
@@ -361,8 +362,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 else:
                     pass
 
-    def changeStoresAttributes(self):
-        self.stackedWidget.setCurrentWidget(self.warewidget)
+    def press_drives_record_btn(self):
+        self.stackedWidget.setCurrentWidget(self.record_drives_widget)
 
         # self.search_and_add = QtWidgets.QPushButton(self.horizontalLayoutWidget_8)
         self.btn = QtWidgets.QPushButton(self)
@@ -382,11 +383,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     # def changeProfit(self):
     #     self.adminstacked.setCurrentWidget(self.changeProfitwidget)
     #     self.profitreflash()
-        # profitreflash
+    # profitreflash
 
     def press_change_logs(self):
         self.adminstacked.setCurrentWidget(self.change_log_widget)
-        self.profitreflash()
+        self.refresh_logs_widget()
         # profitreflash
 
     def queryCustomerInfo(self):
@@ -459,7 +460,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             item.setText(i[0])
             self.execltableWidget.setHorizontalHeaderItem(index, item)
 
-        data = StoreMysql().get_salesinfo()
+        data = StoreMysql().get_logs_records()
         self.execltableWidget.setRowCount(len(data))
         for x, info in enumerate(data):
             print(x, info)
@@ -683,10 +684,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.delete_man.clicked.connect(self.deleteMan)
         self.change_man.clicked.connect(self.changeUser)
         self.customer_button.clicked.connect(self.customerInfo)
-        self.changestoresattributes.clicked.connect(self.changeStoresAttributes)
-        # self.changeprofitbutton.clicked.connect(self.changeProfit)
+        self.changestoresattributes.clicked.connect(self.press_drives_record_btn)
+        self.record_drives.clicked.connect(self.press_drives_record_btn)
         self.change_logs.clicked.connect(self.press_change_logs)
-        self.ware_change_2.clicked.connect(self.profitChange)
+        self.ware_change_2.clicked.connect(self.press_change_logs_btn)
         self.buttonexportexecl.clicked.connect(self.exportExecl)
         self.queryCustomerInfoButton.clicked.connect(self.queryCustomerInfo)
         self.querySalesInfoButton.clicked.connect(self.querySalesInfo)
