@@ -31,17 +31,25 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         # self.stackedWidget.setCurrentIndex(0)
 
+        self.drive_number.hide()
+        self.label_30.hide()
+
         self.buttonConnect()
 
         self.user_info = StoreMysql().get_userinfo()
         self.userType = ""
+        self.current_user_id = 0
+        self.current_user_name = "cbr"
+
         self.my_view()
 
-        self.data = StoreMysql().get_goodsinfo()
+        self.data = StoreMysql().get_devices_info()
 
         self.pay = 0.0
 
-        self.status_dict = {0: 'error', 1: 'normal', 2: 'fixing'}
+        self.status_dict = {0: 'Error', 1: 'Normal', 2: 'Fixing'}
+
+        # self.fixer_fixing_status.addItem()
 
     @staticmethod
     def calculate_md5(src):
@@ -70,6 +78,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                         self.loginmessage.setText("密码输入正常")
                         self.userType = info[3]
                         self.welcomeUser.setText("欢迎您：{}".format(info[1]))
+                        self.current_user_id = info[0]
+                        self.current_user_name = info[1]
                         break
                     else:
                         ...
@@ -93,17 +103,26 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # print(username,password)
 
     # 添加设备
-    def wareAdd(self):
+    def press_drives_entry_btn(self):
         print("添加货物")
-        bank = self.ware_bank.text()
-        goodsname = self.ware_goodsname.text()
-        purchaseprice = float(self.ware_purchaseprice.text())
-        orginnumber = int(self.ware_orginnumber.text())
-        barcode = self.ware_barcode.text()
+        drives_uuid = self.drive_uuid.text()
+        drive_type = self.drive_type.text()
+        drive_product = self.drive_product.text()
+        drive_name = self.drive_name.text()
+        drive_version = self.drive_version.text()
+        drive_specification = self.drive_specification.text()
+        drive_number = int(self.drive_number.text())
+        drive_status = 1
+        drive_department = "company"
+        drive_etype = "0"
+        drive_ereason = "0"
 
-        statu = StoreMysql().add_ware(bank=bank, goods_name=goodsname, purchase_price=purchaseprice,
-                                      orgin_number=orginnumber, barcode=barcode)
-        if statu:
+        status = StoreMysql().add_drives2ware(drives_uuid=drives_uuid, drive_name=drive_name, drive_type=drive_type,
+                                              drive_status=drive_status, drive_version=drive_version,
+                                              drive_specification=drive_specification, drive_product=drive_product,
+                                              drive_department=drive_department,
+                                              drive_etype=drive_etype, drive_ereason=drive_ereason)
+        if status:
             self.ware_message.setText('成功添加')
             self.my_view()
             # self.statusbar.setStatusTip("成功添加")
@@ -111,42 +130,66 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.ware_message.setText('添加失败')
             # self.statusbar.setStatusTip("添加失败")
 
-    def wareChange(self):
-        nowrow = self.tableWidget.currentRow()
-        print("当前行", nowrow)
+    def press_drives_change_btn(self):
+        now_row = self.tableWidget.currentRow()
+        print("当前行", now_row)
         # a,b,c,d,e,f
-        id = self.tableWidget.item(nowrow, 0).text()
-        # ppp=self.tableWidget.item
-        bank = self.tableWidget.item(nowrow, 1).text()
-        goodsname = self.tableWidget.item(nowrow, 2).text()
-        barcode = self.tableWidget.item(nowrow, 3).text()
-        orginnumber = self.tableWidget.item(nowrow, 4).text()
-        purchaseprice = self.tableWidget.item(nowrow, 5).text()
-        count = self.tableWidget.item(nowrow, 6).text()
-        price = self.tableWidget.item(nowrow, 7).text()
-        oldid = self.data[nowrow][0]
 
-        print(id, bank, goodsname)
-        statu = StoreMysql().update_goodsinfo(oldid, bank, goodsname, barcode, purchaseprice, orginnumber, count, price)
-        if statu:
+        drives_uuid = self.tableWidget.item(now_row, 0).text()
+        drive_name = self.tableWidget.item(now_row, 1).text()
+        drive_type = self.tableWidget.item(now_row, 2).text()
+        drive_status = self.tableWidget.item(now_row, 3).text()
+        drive_version = self.tableWidget.item(now_row, 4).text()
+        drive_specification = self.tableWidget.item(now_row, 5).text()
+        drive_product = self.tableWidget.item(now_row, 6).text()
+        drive_department = self.tableWidget.item(now_row, 7).text()
+        drive_etype = self.tableWidget.item(now_row, 8).text()
+        drive_ereason = self.tableWidget.item(now_row, 9).text()
+
+        # uuid, name, type, status, version, specification, product, department, etpye, ereason
+        status = StoreMysql().update_devices_info(drives_uuid, drive_name, drive_type, drive_status, drive_version,
+                                                  drive_specification, drive_product, drive_department, drive_etype,
+                                                  drive_ereason)
+        if status:
             self.ware_message.setText('成功修改')
             self.my_view()
         else:
             self.ware_message.setText('修改失败')
 
-    def wareDelete(self):
-        nowrow = self.tableWidget.currentRow()
-        print("当前行", nowrow)
-        oldid = self.data[nowrow][0]
-        statu = StoreMysql().delete_goodsinfo(oldid)
-        if statu:
+    def press_drives_delete_btn(self):
+        now_row = self.tableWidget.currentRow()
+        print("当前行", now_row)
+        drives_uuid = self.tableWidget.item(now_row, 0).text()
+        status = StoreMysql().delete_devices_info(drives_uuid)
+        if status:
             self.ware_message.setText('删除成功')
             self.my_view()
         else:
             self.ware_message.setText('删除失败')
         return True
 
-    # 刷新进货tablewidget
+    def press_drives_query_btn(self):
+        name = self.drive_name.text()
+        flag = 0
+        if name != '':
+            print('查询')
+            data = StoreMysql().get_devices_info()
+            for x, info in enumerate(data):
+                print(x, info)
+                for y, cell in enumerate(info):
+                    print(y, cell)
+                    if name == cell:
+                        self.tableWidget.selectRow(x)
+                        flag = 1
+                        break
+                    else:
+                        pass
+        else:
+            ...
+        if flag:
+            self.ware_message.setText("查找成功")
+        else:
+            self.ware_message.setText("查找失败")
 
     def my_view(self):
         _translate = QtCore.QCoreApplication.translate
@@ -155,14 +198,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         item.setText(_translate("MainWindow", "进货价格"))
         # item = self.tableWidget.item(0, 0)
 
-        self.data = StoreMysql().get_goodsinfo()
+        self.data = StoreMysql().get_devices_info()
 
         self.tableWidget.setRowCount(len(self.data))
         for x, info in enumerate(self.data):
             print(x, info)
             for y, cell in enumerate(info):
                 print(y, cell)
-                if y < 8:
+                if y < 10:
                     try:
                         item = QtWidgets.QTableWidgetItem(str(cell))
                         self.tableWidget.setItem(x, y, item)
@@ -217,88 +260,53 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 else:
                     pass
 
-    def searchGoods(self):
+    def press_search_drives_btn(self):
         print('搜索商品信息')
         # self.count.setText()
-        barcode = self.fixer_search_drives.text()
-        if barcode != '':
-            data = StoreMysql().search_devices(barcode=barcode)[0]
+        drives_id = self.fixer_search_drives.text()
+        if drives_id != '':
+            data = StoreMysql().search_devices(drives_id=drives_id)[0]
             if data:
                 self.fixer_drive_name.setText(data[1])
                 self.fixer_drive_version.setText(data[4])
                 self.fixer_drive_id.setText(data[0])
                 self.fixer_drive_spec.setText(data[5])
-                self.fixer_drive_statu.setText(self.status_dict[data[3]])
+                self.fixer_drive_status.setText(self.status_dict[data[3]])
                 self.fixer_drive_etpye.setText(data[8])
                 self.fixer_drive_ereason.setText(data[9])
                 self.fixer_drive_department.setText(data[7])
-
-                # data = data[0]
-                # self.pay += float(data[6] * data[7])
-                # self.goodsname.setText(data[2])
-                # self.price.setText("%.2f" % float(data[6] * data[7]))
-                # self.barcode.setText(data[3])
-                # self.count.setText(str(data[6] * 100) + "%")
-                # self.need_pay.setText(str("%.2f" % self.pay))
-                #
-                # # id=data[0]
-                # # bank=data[1]
-                # # goodsname=data[2]
-                # barcode = data[3]
-                # # orginnumber = data[4]
-                # purchaseprice = data[5]
-                # price = data[6] * data[7]
-
                 # todo 添加信息到 日志表
-                # statu = StoreMysql().sale_goods(barcode, float(price - purchaseprice))
 
-                # mylist = QtWidgets.QWidget()
-                # mylist.setGeometry(QtCore.QRect(90, 700, 820, 30))
-                # # mylist.setObjectName("mylist")
-                # listname = QtWidgets.QLabel(mylist)
-                # listname.setGeometry(QtCore.QRect(0, 0, 151, 30))
-                # listname.setAlignment(QtCore.Qt.AlignCenter)
-                # listname.setText(data[2])
-                # # listname.setObjectName("listname")
-                # listnum = QtWidgets.QLabel(mylist)
-                # listnum.setGeometry(QtCore.QRect(300, 0, 151, 30))
-                # listnum.setAlignment(QtCore.Qt.AlignCenter)
-                # listnum.setText("1")
-                # # listnum.setObjectName("listnum")
-                # listprice = QtWidgets.QLabel(mylist)
-                # listprice.setGeometry(QtCore.QRect(650, 0, 151, 30))
-                # listprice.setAlignment(QtCore.Qt.AlignCenter)
-                # listprice.setText("%.2f" % float(data[6] * data[7]))
-                # # listprice.setObjectName("listprice")
-                # # 自定义控件
-                # item = QtWidgets.QListWidgetItem()
-                # item.setSizeHint(QtCore.QSize(820, 30))
-                # # items->setSizeHint(QSize(1000, 32));
-                # self.listWidget.addItem(item)
-                # self.listWidget.setItemWidget(item, mylist)
+                self.fixer_fixing_status.setCurrentIndex(data[3])
+
+                record = "user {} 接入 {} 设备ID:{} 进行维修".format(self.current_user_name, data[1], data[0])
+
+                status = StoreMysql().record_logs(data[0], record, self.current_user_id)
+                if status:
+                    print("日志记录成功")
             else:
-                self.salemessage.setText("找不到该商品")
-                print('找不到？')
+                self.fixer_message.setText("找不到该设备")
         else:
-            self.salemessage.setText("请输入条形码")
-            print("输入条形码")
+            self.fixer_message.setText("请输入条形码")
 
-    def payOver(self):
+    def press_fixer_commit_btn(self):
 
-        statu = StoreMysql().update_customer_credit(customerid=self.customername.text(), credit=self.need_pay.text())
-        if statu:
-            self.salemessage.setText("收款成功")
-            print("收款成功")
+        # todo 重构所有SQL执行
+        current_drives_id = self.fixer_drive_id.text()
+        current_drives_status = self.fixer_fixing_status.currentIndex()
+
+        status = StoreMysql().update_drives_table(current_drives_id, current_drives_status)
+        if status:
+            self.fixer_message.setText("更新设备状态成功")
         else:
-            self.salemessage.setText("收款失败")
-            print("收款失败")
-        self.listWidget.clear()
-        self.barcode.clear()
-        self.price.clear()
-        self.search_barcode.clear()
-        self.need_pay.clear()
-        self.goodsname.clear()
-        self.customername.clear()
+            self.fixer_message.setText("更新设备状态失败")
+        # self.listWidget.clear()
+        # self.barcode.clear()
+        # self.price.clear()
+        # self.search_barcode.clear()
+        # self.need_pay.clear()
+        # self.goodsname.clear()
+        # self.customername.clear()
 
     def managerUser(self):
         self.adminstacked.setCurrentWidget(self.manager_man)
@@ -689,11 +697,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def buttonConnect(self):
         self.login.clicked.connect(self.try_login)
-        self.ware_add.clicked.connect(self.wareAdd)
-        self.ware_change.clicked.connect(self.wareChange)
-        self.ware_delete.clicked.connect(self.wareDelete)
-        self.search_and_add.clicked.connect(self.searchGoods)
-        self.finish_pay.clicked.connect(self.payOver)
+        self.logoutButton.clicked.connect(self.logout)
+
+        self.drives_entry.clicked.connect(self.press_drives_entry_btn)
+        self.drives_change.clicked.connect(self.press_drives_change_btn)
+        self.drives_delete.clicked.connect(self.press_drives_delete_btn)
+        self.drives_query.clicked.connect(self.press_drives_query_btn)
+
+        self.fixer_search_drives_and_add.clicked.connect(self.press_search_drives_btn)
+        self.fixer_commit.clicked.connect(self.press_fixer_commit_btn)
+
         self.manager_user.clicked.connect(self.managerUser)
         self.resign.clicked.connect(self.resignMan)
         self.delete_man.clicked.connect(self.deleteMan)
@@ -713,8 +726,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.queryRemainLessThan10Button.clicked.connect(self.queryRemainLessThan10)
         self.querySuggestedPromotionalItemsButton.clicked.connect(self.querySuggestedPromotionalItems)
         self.buttonprintexecl.clicked.connect(self.printExecl)
-        self.logoutButton.clicked.connect(self.logout)
-        self.ware_query_2.clicked.connect(self.queryGoods)
 
     # DescendingOrder
     def exportExecl(self):
@@ -749,25 +760,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             )
         except:
             self.label_29.setText("打印失败")
-
-    def queryGoods(self):
-        name = self.ware_goodsname.text()
-        if name != '':
-            print('查询')
-            data = StoreMysql().get_goodsinfo()
-            for x, info in enumerate(data):
-                print(x, info)
-                for y, cell in enumerate(info):
-                    print(y, cell)
-                    if name == cell:
-                        self.tableWidget.selectRow(x)
-                        self.ware_message.setText("查找成功")
-                        break
-                    else:
-                        pass
-
-        else:
-            self.ware_message.setText("查找失败")
 
     def add2execl(self, sheet):
         # 添加头

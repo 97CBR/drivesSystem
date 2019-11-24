@@ -6,7 +6,7 @@
 import pymysql
 
 
-class drives_managementMysql:
+class StoreMysql:
     def __init__(self):
         self.ip = "127.0.0.1"
         self.port = 3306
@@ -44,7 +44,7 @@ class drives_managementMysql:
         return data
 
     # 获取用户表所有数据
-    def get_goodsinfo(self):
+    def get_devices_info(self):
         sql = "SELECT * FROM `drives`"
         data = self.operational_data(sql).fetchall()
         # print(data)
@@ -63,25 +63,39 @@ class drives_managementMysql:
         #     print(x)
         return data
 
-    def add_ware(self, bank, goods_name, purchase_price, orgin_number, barcode):
-        # 获取下一个ID
-        SQL = "SELECT goodsid FROM `warehouse`"
-        data = self.operational_data(SQL).fetchall()
-        print(data)
-        id = data[-1][0] + 1
-        print("new id", id)
-        # 插入warehouse表
-        SQL = "INSERT INTO `drives_management`.`warehouse`(`goodsid`,`orginnumber`, `remainnumber`, `barcode`) VALUES ({},{}, {}, '{}')".format(
-            id, orgin_number, orgin_number, barcode)
-        data = self.operational_data(SQL)
-        # 插入goodsinfo表
-        SQL = "INSERT INTO `drives_management`.`goodsinfo`(`goodsid`, `bank`, `goodsname`, `barcode`, `purchaseprice`, `orginnumber`) " \
-              "VALUES ({}, '{}', '{}', '{}', {}, {})".format(id, bank, goods_name, barcode, purchase_price,
-                                                             orgin_number)
-        data = self.operational_data(SQL)
-        # 插入saleinfo表
-        SQL = "INSERT INTO `drives_management`.`salesinfo`(`goodsid`, `name`, `bank`, `barcode`, `salesnumber`, `remainnumber`, `profit`) " \
-              "VALUES ({}, '{}', '{}', '{}', 0, {}, 0)".format(id, goods_name, bank, barcode, orgin_number)
+    def add_drives2ware(self, drives_uuid, drive_name, drive_type,
+                        drive_status, drive_version,
+                        drive_specification, drive_product,
+                        drive_department,
+                        drive_etype, drive_ereason):
+
+        SQL = "INSERT INTO `drives_management`.`drives`(`uuid`, `name`, `type`, `status`, `version`, `specification`, " \
+              "`product`, `department`, `etpye`, `ereason`) VALUES ('{}', '{}', '{}', {}, '{}', '{}', '{}', '{}', '{}', '{}')".format(
+            drives_uuid, drive_name, drive_type,
+            drive_status, drive_version,
+            drive_specification, drive_product,
+            drive_department,
+            drive_etype, drive_ereason)
+
+        print(SQL)
+        # # 获取下一个ID
+        # SQL = "SELECT goodsid FROM `warehouse`"
+        # data = self.operational_data(SQL).fetchall()
+        # print(data)
+        # id = data[-1][0] + 1
+        # print("new id", id)
+        # # 插入warehouse表
+        # SQL = "INSERT INTO `drives_management`.`warehouse`(`goodsid`,`orginnumber`, `remainnumber`, `barcode`) VALUES ({},{}, {}, '{}')".format(
+        #     id, orgin_number, orgin_number, barcode)
+        # data = self.operational_data(SQL)
+        # # 插入goodsinfo表
+        # SQL = "INSERT INTO `drives_management`.`goodsinfo`(`goodsid`, `bank`, `goodsname`, `barcode`, `purchaseprice`, `orginnumber`) " \
+        #       "VALUES ({}, '{}', '{}', '{}', {}, {})".format(id, bank, goods_name, barcode, purchase_price,
+        #                                                      orgin_number)
+        # data = self.operational_data(SQL)
+        # # 插入saleinfo表
+        # SQL = "INSERT INTO `drives_management`.`salesinfo`(`goodsid`, `name`, `bank`, `barcode`, `salesnumber`, `remainnumber`, `profit`) " \
+        #       "VALUES ({}, '{}', '{}', '{}', 0, {}, 0)".format(id, goods_name, bank, barcode, orgin_number)
         data = self.operational_data(SQL)
 
         if data:
@@ -89,61 +103,50 @@ class drives_managementMysql:
         else:
             return False
 
-    def update_goodsinfo(self, id, bank, goodsname, barcode, purchaseprice, orginnumber, count, price):
+    def update_devices_info(self, uuid, name, type, status, version, specification, product, department, etpye,
+                            ereason):
+
+        # uuid,        name,        type,        status,        version,        specification,        product,        department,        etpye,        ereason
+
         # 更新goodsinfo表
-        SQL = "UPDATE `drives_management`.`goodsinfo` SET `bank` = '{}', `goodsname` = '{}', `barcode` = '{}'," \
-              " `purchaseprice` = {}, `orginnumber` = {} ,`count` = {} ,`price` = {} WHERE `goodsid` = {}".format(bank,
-                                                                                                                  goodsname,
-                                                                                                                  barcode,
-                                                                                                                  purchaseprice,
-                                                                                                                  orginnumber,
-                                                                                                                  count,
-                                                                                                                  price,
-                                                                                                                  id)
-        data = self.operational_data(SQL)
-        # 更新warehouse表
-        SQL = "UPDATE `drives_management`.`warehouse` SET `barcode` = '{}', `orginnumber` = {} WHERE `goodsid` = {}".format(barcode,
-                                                                                                                orginnumber,
-                                                                                                                id)
+        SQL = "UPDATE `drives_management`.`drives` SET  `name` = '{}', `type` = '{}', `status` = {}," \
+              " `version` = '{}', `specification` = '{}', `product` = '{}', `department` = '{}'," \
+              " `etpye` = '{}', `ereason` = '{}' WHERE `uuid` = '{}'".format(name, type, int(status), version,
+                                                                             specification, product, department, etpye,
+                                                                             ereason, uuid)
         data = self.operational_data(SQL)
         if data:
             return True
         else:
             return False
 
-    def delete_goodsinfo(self, id):
+    def delete_devices_info(self, id):
         # 删除goodsinfo表
         SQL = "DELETE FROM `drives_management`.`drives` WHERE `uuid` = {}".format(id)
         data = self.operational_data(SQL)
 
-        # 删除saleinfo表
-        SQL = "DELETE FROM `drives_management`.`salesinfo` WHERE `goodsid` = {}".format(id)
-        data = self.operational_data(SQL)
+        # todo 删除fixing表
+        # SQL = "DELETE FROM `drives_management`.`salesinfo` WHERE `goodsid` = {}".format(id)
+        # data = self.operational_data(SQL)
 
-        # 删除warehouse表
-        SQL = "DELETE FROM `drives_management`.`warehouse` WHERE `goodsid` = {}".format(id)
-        data = self.operational_data(SQL)
         if data:
             return True
         else:
             return False
 
-    def search_devices(self, barcode):
-        SQL = "SELECT * FROM `drives_management`.`drives` WHERE  `uuid` = '{}'".format(barcode)
+    def search_devices(self, drives_id):
+        SQL = "SELECT * FROM `drives_management`.`drives` WHERE  `uuid` = '{}'".format(drives_id)
         # sql = "SELECT * FROM `goodsinfo`"
         data = self.operational_data(SQL).fetchall()
         return data
 
-    def sale_goods(self, barcode, price):
-        SQL = "UPDATE `drives_management`.`warehouse` SET `salesnumber` = `salesnumber`+1, `remainnumber` = `remainnumber`-1 WHERE `barcode` = {}".format(
-            barcode)
+    def record_logs(self, uuid, record, user_id):
+
+        SQL = "INSERT INTO `drives_management`.`logs`(`uuid`, `record`, `user_id`) VALUES ('{}', '{}', {})".format(uuid,
+                                                                                                                   record,
+                                                                                                                   user_id)
         data = self.operational_data(SQL)
 
-        # SQL="INSERT INTO `drives_management`.`salesinfo`(`goodsid`, `name`, `bank`, `barcode`, `salesnumber`, `remainnumber`, `profit`) VALUES (2, 'a', 'a', 'a', 1, 999, 26)"
-
-        SQL = "UPDATE `drives_management`.`salesinfo` SET `salesnumber` = `salesnumber`+1 , remainnumber=remainnumber-1 ,profit=profit+{} WHERE `barcode` = {}".format(
-            price, barcode)
-        data = self.operational_data(SQL)
         return data
 
     def resign_user(self, name, type, pwd):
@@ -246,8 +249,9 @@ ORDER BY
         data = self.operational_data(sql).fetchall()
         return data
 
-    def update_customer_credit(self, credit=0, customerid=0):
-        sql = "UPDATE `drives_management`.`customerinfo` SET `source` = `source` + {} WHERE `customerid` =  '{}'".format(credit,
-                                                                                                             customerid)
+    def update_drives_table(self, uuid, status):
+        sql = "UPDATE `drives_management`.`drives` SET `status` = {} WHERE `uuid` =  '{}'".format(
+            status,
+            uuid)
         data = self.operational_data(sql)
         return data
