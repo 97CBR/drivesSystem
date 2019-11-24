@@ -218,8 +218,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def press_change_logs_btn(self):
         now_row = self.log_widget.currentRow()
+
         print("当前行", now_row)
-        # a,b,c,d,e,f
         log_id = self.log_widget.item(now_row, 0).text()
         # ppp=self.tableWidget.item
         record = self.log_widget.item(now_row, 1).text()
@@ -229,19 +229,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         drive_id = self.log_widget.item(now_row, 5).text()
         version = self.log_widget.item(now_row, 6).text()
 
-        old_id = self.data[now_row][0]
-
-        print(log_id, record, user_id)
-        # 修改数据库 TODO: 待改进此数据库语句
-        status = StoreMysql().update_salesinfo(old_id, record, user_id, user_name, drive_name, drive_id, version)
+        # old_id = self.data[now_row][0]
+        #
+        # print(log_id, record, user_id)
+        # 修改数据库
+        status = StoreMysql().update_admin_log_info(log_id, record, user_id, user_name, drive_name, drive_id, version)
         if status:
             self.ware_message.setText('成功修改')
             self.refresh_logs_widget()
         else:
             self.ware_message.setText('修改失败')
 
+    # 更新日志
     def refresh_logs_widget(self):
-
         self.data = StoreMysql().get_logs_records()
 
         self.log_widget.setRowCount(len(self.data))
@@ -253,8 +253,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     try:
                         item = QtWidgets.QTableWidgetItem(str(cell))
                         self.log_widget.setItem(x, y, item)
-                        # item = self.tableWidget.item(x, y)
-                        # item.setText(_translate("MainWindow",str(cell)))
                     except:
                         pass
                 else:
@@ -311,36 +309,34 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def managerUser(self):
         self.adminstacked.setCurrentWidget(self.manager_man)
 
-    def resignMan(self):
+    def registered_user(self):
         username = self.resigner_name.text()
         password_1 = self.resigner_password_1.text()
         password_2 = self.resigner_password_2.text()
         if (username != '') and (password_1 != '') and (password_2 != '') and password_1 == password_2:
-            resigner_type = self.resign_type.currentText()
+            user_type = self.resign_type.currentText()
             pwd = self.calculate_md5(password_2)
             print("加密", pwd)
 
-            statu = StoreMysql().resign_user(username, resigner_type, pwd)
-            if statu:
+            status = StoreMysql().registered_user_to_database(username, pwd, user_type)
+            if status:
                 self.resigner_name.clear()
                 self.resigner_password_1.clear()
                 self.resigner_password_2.clear()
                 self.loginmessage_2.setText('成功添加')
-                # self.myview()
             else:
                 self.resigner_name.clear()
                 self.resigner_password_1.clear()
                 self.resigner_password_2.clear()
                 self.loginmessage_2.setText('添加失败')
         else:
-            # print()
             self.loginmessage_2.setText("错误")
 
-    def deleteMan(self):
+    def delete_user(self):
         username = self.delete_username.text()
         if username != '':
-            statu = StoreMysql().delete_user(username)
-            if statu:
+            status = StoreMysql().delete_user(username)
+            if status:
                 self.delete_username.clear()
                 self.loginmessage_3.setText('成功删除')
                 self.my_view()
@@ -707,15 +703,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.fixer_search_drives_and_add.clicked.connect(self.press_search_drives_btn)
         self.fixer_commit.clicked.connect(self.press_fixer_commit_btn)
 
-        self.manager_user.clicked.connect(self.managerUser)
-        self.resign.clicked.connect(self.resignMan)
-        self.delete_man.clicked.connect(self.deleteMan)
-        self.change_man.clicked.connect(self.changeUser)
+        self.admin_change_log.clicked.connect(self.press_change_logs_btn)
+
+        self.admin_manager_user.clicked.connect(self.managerUser)
+        self.admin_registered.clicked.connect(self.registered_user)
+        self.admin_delete_user.clicked.connect(self.delete_user)
+        self.admin_change_user.clicked.connect(self.changeUser)
+
         self.customer_button.clicked.connect(self.customerInfo)
         self.changestoresattributes.clicked.connect(self.press_drives_record_btn)
         self.record_drives.clicked.connect(self.press_drives_record_btn)
         self.change_logs.clicked.connect(self.press_change_logs)
-        self.ware_change_2.clicked.connect(self.press_change_logs_btn)
         self.buttonexportexecl.clicked.connect(self.exportExecl)
         self.queryCustomerInfoButton.clicked.connect(self.queryCustomerInfo)
         self.querySalesInfoButton.clicked.connect(self.querySalesInfo)

@@ -149,9 +149,9 @@ class StoreMysql:
 
         return data
 
-    def resign_user(self, name, type, pwd):
-        SQL = "INSERT INTO `drives_management`.`users`(`name`, `type`, `pwd`) " \
-              "VALUES ('{}', '{}', '{}')".format(name, type, pwd)
+    def registered_user_to_database(self, name, pwd, role):
+        SQL = "INSERT INTO `drives_management`.`users`(`name`, `pwd`, `role`) " \
+              "VALUES ('{}', '{}', '{}')".format(name, pwd, role)
         data = self.operational_data(SQL)
         return data
 
@@ -170,16 +170,18 @@ class StoreMysql:
         data = self.operational_data(SQL).fetchall()
         return data
 
-    def update_salesinfo(self, oldid, bank, goodsname, barcode, salesnumber, remainnumber, profit):
+    def update_admin_log_info(self, log_id, record, user_id, user_name, drive_name, drive_id, version):
         # 更新salesinfo表
-        SQL = "UPDATE `drives_management`.`salesinfo` SET `bank` = '{}', `name` = '{}', `barcode` = '{}'," \
-              " `salesnumber` = {}, `remainnumber` = {} , `profit` = {} WHERE `goodsid` = {}".format(bank, goodsname,
-                                                                                                     barcode,
-                                                                                                     salesnumber,
-                                                                                                     remainnumber,
-                                                                                                     profit, oldid)
-        data = self.operational_data(SQL)
-        if data:
+
+        log_sql = "UPDATE `drives_management`.`logs` SET `logid` = {}, `uuid` = '{}', `record` = '{}', `user_id` = {} WHERE `logid` = {}".format(
+            log_id, drive_id, record, user_id, log_id)
+        data_one = self.operational_data(log_sql)
+
+        drives_sql = "UPDATE `drives_management`.`drives` SET `uuid` = '{}', `name` = '{}', `version` = '{}' WHERE `uuid` = '{}'".format(
+            drive_id, drive_name, version, drive_id)
+        data_two = self.operational_data(drives_sql)
+
+        if data_one and data_two:
             return True
         else:
             return False
