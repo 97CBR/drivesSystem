@@ -6,7 +6,7 @@
 import pymysql
 
 
-class StoreMysql:
+class drives_managementMysql:
     def __init__(self):
         self.ip = "127.0.0.1"
         self.port = 3306
@@ -71,16 +71,16 @@ class StoreMysql:
         id = data[-1][0] + 1
         print("new id", id)
         # 插入warehouse表
-        SQL = "INSERT INTO `store`.`warehouse`(`goodsid`,`orginnumber`, `remainnumber`, `barcode`) VALUES ({},{}, {}, '{}')".format(
+        SQL = "INSERT INTO `drives_management`.`warehouse`(`goodsid`,`orginnumber`, `remainnumber`, `barcode`) VALUES ({},{}, {}, '{}')".format(
             id, orgin_number, orgin_number, barcode)
         data = self.operational_data(SQL)
         # 插入goodsinfo表
-        SQL = "INSERT INTO `store`.`goodsinfo`(`goodsid`, `bank`, `goodsname`, `barcode`, `purchaseprice`, `orginnumber`) " \
+        SQL = "INSERT INTO `drives_management`.`goodsinfo`(`goodsid`, `bank`, `goodsname`, `barcode`, `purchaseprice`, `orginnumber`) " \
               "VALUES ({}, '{}', '{}', '{}', {}, {})".format(id, bank, goods_name, barcode, purchase_price,
                                                              orgin_number)
         data = self.operational_data(SQL)
         # 插入saleinfo表
-        SQL = "INSERT INTO `store`.`salesinfo`(`goodsid`, `name`, `bank`, `barcode`, `salesnumber`, `remainnumber`, `profit`) " \
+        SQL = "INSERT INTO `drives_management`.`salesinfo`(`goodsid`, `name`, `bank`, `barcode`, `salesnumber`, `remainnumber`, `profit`) " \
               "VALUES ({}, '{}', '{}', '{}', 0, {}, 0)".format(id, goods_name, bank, barcode, orgin_number)
         data = self.operational_data(SQL)
 
@@ -91,7 +91,7 @@ class StoreMysql:
 
     def update_goodsinfo(self, id, bank, goodsname, barcode, purchaseprice, orginnumber, count, price):
         # 更新goodsinfo表
-        SQL = "UPDATE `store`.`goodsinfo` SET `bank` = '{}', `goodsname` = '{}', `barcode` = '{}'," \
+        SQL = "UPDATE `drives_management`.`goodsinfo` SET `bank` = '{}', `goodsname` = '{}', `barcode` = '{}'," \
               " `purchaseprice` = {}, `orginnumber` = {} ,`count` = {} ,`price` = {} WHERE `goodsid` = {}".format(bank,
                                                                                                                   goodsname,
                                                                                                                   barcode,
@@ -102,7 +102,7 @@ class StoreMysql:
                                                                                                                   id)
         data = self.operational_data(SQL)
         # 更新warehouse表
-        SQL = "UPDATE `store`.`warehouse` SET `barcode` = '{}', `orginnumber` = {} WHERE `goodsid` = {}".format(barcode,
+        SQL = "UPDATE `drives_management`.`warehouse` SET `barcode` = '{}', `orginnumber` = {} WHERE `goodsid` = {}".format(barcode,
                                                                                                                 orginnumber,
                                                                                                                 id)
         data = self.operational_data(SQL)
@@ -113,52 +113,52 @@ class StoreMysql:
 
     def delete_goodsinfo(self, id):
         # 删除goodsinfo表
-        SQL = "DELETE FROM `store`.`goodsinfo` WHERE `goodsid` = {}".format(id)
+        SQL = "DELETE FROM `drives_management`.`drives` WHERE `uuid` = {}".format(id)
         data = self.operational_data(SQL)
 
         # 删除saleinfo表
-        SQL = "DELETE FROM `store`.`salesinfo` WHERE `goodsid` = {}".format(id)
+        SQL = "DELETE FROM `drives_management`.`salesinfo` WHERE `goodsid` = {}".format(id)
         data = self.operational_data(SQL)
 
         # 删除warehouse表
-        SQL = "DELETE FROM `store`.`warehouse` WHERE `goodsid` = {}".format(id)
+        SQL = "DELETE FROM `drives_management`.`warehouse` WHERE `goodsid` = {}".format(id)
         data = self.operational_data(SQL)
         if data:
             return True
         else:
             return False
 
-    def search_goods(self, barcode):
-        SQL = "SELECT * FROM `store`.`goodsinfo` WHERE  `barcode` = '{}'".format(barcode)
+    def search_devices(self, barcode):
+        SQL = "SELECT * FROM `drives_management`.`drives` WHERE  `uuid` = '{}'".format(barcode)
         # sql = "SELECT * FROM `goodsinfo`"
         data = self.operational_data(SQL).fetchall()
         return data
 
     def sale_goods(self, barcode, price):
-        SQL = "UPDATE `store`.`warehouse` SET `salesnumber` = `salesnumber`+1, `remainnumber` = `remainnumber`-1 WHERE `barcode` = {}".format(
+        SQL = "UPDATE `drives_management`.`warehouse` SET `salesnumber` = `salesnumber`+1, `remainnumber` = `remainnumber`-1 WHERE `barcode` = {}".format(
             barcode)
         data = self.operational_data(SQL)
 
-        # SQL="INSERT INTO `store`.`salesinfo`(`goodsid`, `name`, `bank`, `barcode`, `salesnumber`, `remainnumber`, `profit`) VALUES (2, 'a', 'a', 'a', 1, 999, 26)"
+        # SQL="INSERT INTO `drives_management`.`salesinfo`(`goodsid`, `name`, `bank`, `barcode`, `salesnumber`, `remainnumber`, `profit`) VALUES (2, 'a', 'a', 'a', 1, 999, 26)"
 
-        SQL = "UPDATE `store`.`salesinfo` SET `salesnumber` = `salesnumber`+1 , remainnumber=remainnumber-1 ,profit=profit+{} WHERE `barcode` = {}".format(
+        SQL = "UPDATE `drives_management`.`salesinfo` SET `salesnumber` = `salesnumber`+1 , remainnumber=remainnumber-1 ,profit=profit+{} WHERE `barcode` = {}".format(
             price, barcode)
         data = self.operational_data(SQL)
         return data
 
     def resign_user(self, name, type, pwd):
-        SQL = "INSERT INTO `store`.`users`(`name`, `type`, `pwd`) " \
+        SQL = "INSERT INTO `drives_management`.`users`(`name`, `type`, `pwd`) " \
               "VALUES ('{}', '{}', '{}')".format(name, type, pwd)
         data = self.operational_data(SQL)
         return data
 
     def delete_user(self, name):
-        SQL = "DELETE FROM `store`.`users` WHERE `name` = '{}'".format(name)
+        SQL = "DELETE FROM `drives_management`.`users` WHERE `name` = '{}'".format(name)
         data = self.operational_data(SQL)
         return data
 
     def change_user(self, type, name):
-        SQL = "UPDATE `store`.`users` SET `type` = '{}' WHERE `name` = '{}'".format(type, name)
+        SQL = "UPDATE `drives_management`.`users` SET `type` = '{}' WHERE `name` = '{}'".format(type, name)
         data = self.operational_data(SQL)
         return data
 
@@ -169,7 +169,7 @@ class StoreMysql:
 
     def update_salesinfo(self, oldid, bank, goodsname, barcode, salesnumber, remainnumber, profit):
         # 更新salesinfo表
-        SQL = "UPDATE `store`.`salesinfo` SET `bank` = '{}', `name` = '{}', `barcode` = '{}'," \
+        SQL = "UPDATE `drives_management`.`salesinfo` SET `bank` = '{}', `name` = '{}', `barcode` = '{}'," \
               " `salesnumber` = {}, `remainnumber` = {} , `profit` = {} WHERE `goodsid` = {}".format(bank, goodsname,
                                                                                                      barcode,
                                                                                                      salesnumber,
@@ -182,7 +182,7 @@ class StoreMysql:
             return False
 
     def get_column_name(self, tablename):
-        sql = "select COLUMN_NAME,column_comment from INFORMATION_SCHEMA.Columns where table_name='{}' and table_schema='store'".format(
+        sql = "select COLUMN_NAME,column_comment from INFORMATION_SCHEMA.Columns where table_name='{}' and table_schema='drives_management'".format(
             tablename)
         data = self.operational_data(sql).fetchall()
         return data
@@ -232,22 +232,22 @@ ORDER BY
         return data
 
     def get_goods_detail_info(self):
-        sql = "SELECT * FROM `store`.`allgoodsinfo` ORDER BY `goodsid` LIMIT 0, 1000"
+        sql = "SELECT * FROM `drives_management`.`allgoodsinfo` ORDER BY `goodsid` LIMIT 0, 1000"
         data = self.operational_data(sql).fetchall()
         return data
 
     def get_remain_less_than_10(self):
-        sql = "SELECT * FROM `store`.`saleview` WHERE `remainnumber` < orginnumber * 0.1 "
+        sql = "SELECT * FROM `drives_management`.`saleview` WHERE `remainnumber` < orginnumber * 0.1 "
         data = self.operational_data(sql).fetchall()
         return data
 
     def get_suggested_promotional_items(self):
-        sql = "SELECT * FROM `store`.`saleview` WHERE `salesnumber` < orginnumber * 0.1  "
+        sql = "SELECT * FROM `drives_management`.`saleview` WHERE `salesnumber` < orginnumber * 0.1  "
         data = self.operational_data(sql).fetchall()
         return data
 
     def update_customer_credit(self, credit=0, customerid=0):
-        sql = "UPDATE `store`.`customerinfo` SET `source` = `source` + {} WHERE `customerid` =  '{}'".format(credit,
+        sql = "UPDATE `drives_management`.`customerinfo` SET `source` = `source` + {} WHERE `customerid` =  '{}'".format(credit,
                                                                                                              customerid)
         data = self.operational_data(sql)
         return data

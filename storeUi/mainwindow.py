@@ -41,15 +41,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.pay = 0.0
 
+        self.status_dict = {0: 'error', 1: 'normal', 2: 'fixing'}
+
     @staticmethod
     def calculate_md5(src):
         m = hashlib.md5()
         m.update(src.encode('UTF-8'))
         return m.hexdigest()
 
+    # 退出登录
     def logout(self):
         self.stackedWidget.setCurrentWidget(self.loginwidget)
 
+    # 登录
     def try_login(self):
         print("准备登陆")
         username = self.username.text()
@@ -88,6 +92,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             ...
         # print(username,password)
 
+    # 添加设备
     def wareAdd(self):
         print("添加货物")
         bank = self.ware_bank.text()
@@ -214,53 +219,63 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def searchGoods(self):
         print('搜索商品信息')
-        barcode = self.search_barcode.text()
+        # self.count.setText()
+        barcode = self.fixer_search_drives.text()
         if barcode != '':
-            data = StoreMysql().search_goods(barcode=barcode)
+            data = StoreMysql().search_devices(barcode=barcode)[0]
             if data:
-                data = data[0]
-                self.pay += float(data[6] * data[7])
-                self.goodsname.setText(data[2])
-                self.price.setText("%.2f" % float(data[6] * data[7]))
-                self.barcode.setText(data[3])
-                self.count.setText(str(data[6] * 100) + "%")
-                self.need_pay.setText(str("%.2f" % self.pay))
+                self.fixer_drive_name.setText(data[1])
+                self.fixer_drive_version.setText(data[4])
+                self.fixer_drive_id.setText(data[0])
+                self.fixer_drive_spec.setText(data[5])
+                self.fixer_drive_statu.setText(self.status_dict[data[3]])
+                self.fixer_drive_etpye.setText(data[8])
+                self.fixer_drive_ereason.setText(data[9])
+                self.fixer_drive_department.setText(data[7])
 
-                # id=data[0]
-                # bank=data[1]
-                # goodsname=data[2]
-                barcode = data[3]
-                # orginnumber = data[4]
-                purchaseprice = data[5]
-                price = data[6] * data[7]
+                # data = data[0]
+                # self.pay += float(data[6] * data[7])
+                # self.goodsname.setText(data[2])
+                # self.price.setText("%.2f" % float(data[6] * data[7]))
+                # self.barcode.setText(data[3])
+                # self.count.setText(str(data[6] * 100) + "%")
+                # self.need_pay.setText(str("%.2f" % self.pay))
+                #
+                # # id=data[0]
+                # # bank=data[1]
+                # # goodsname=data[2]
+                # barcode = data[3]
+                # # orginnumber = data[4]
+                # purchaseprice = data[5]
+                # price = data[6] * data[7]
 
-                # 添加信息到销售表
-                statu = StoreMysql().sale_goods(barcode, float(price - purchaseprice))
+                # todo 添加信息到 日志表
+                # statu = StoreMysql().sale_goods(barcode, float(price - purchaseprice))
 
-                mylist = QtWidgets.QWidget()
-                mylist.setGeometry(QtCore.QRect(90, 700, 820, 30))
-                # mylist.setObjectName("mylist")
-                listname = QtWidgets.QLabel(mylist)
-                listname.setGeometry(QtCore.QRect(0, 0, 151, 30))
-                listname.setAlignment(QtCore.Qt.AlignCenter)
-                listname.setText(data[2])
-                # listname.setObjectName("listname")
-                listnum = QtWidgets.QLabel(mylist)
-                listnum.setGeometry(QtCore.QRect(300, 0, 151, 30))
-                listnum.setAlignment(QtCore.Qt.AlignCenter)
-                listnum.setText("1")
-                # listnum.setObjectName("listnum")
-                listprice = QtWidgets.QLabel(mylist)
-                listprice.setGeometry(QtCore.QRect(650, 0, 151, 30))
-                listprice.setAlignment(QtCore.Qt.AlignCenter)
-                listprice.setText("%.2f" % float(data[6] * data[7]))
-                # listprice.setObjectName("listprice")
-                # 自定义控件
-                item = QtWidgets.QListWidgetItem()
-                item.setSizeHint(QtCore.QSize(820, 30))
-                # items->setSizeHint(QSize(1000, 32));
-                self.listWidget.addItem(item)
-                self.listWidget.setItemWidget(item, mylist)
+                # mylist = QtWidgets.QWidget()
+                # mylist.setGeometry(QtCore.QRect(90, 700, 820, 30))
+                # # mylist.setObjectName("mylist")
+                # listname = QtWidgets.QLabel(mylist)
+                # listname.setGeometry(QtCore.QRect(0, 0, 151, 30))
+                # listname.setAlignment(QtCore.Qt.AlignCenter)
+                # listname.setText(data[2])
+                # # listname.setObjectName("listname")
+                # listnum = QtWidgets.QLabel(mylist)
+                # listnum.setGeometry(QtCore.QRect(300, 0, 151, 30))
+                # listnum.setAlignment(QtCore.Qt.AlignCenter)
+                # listnum.setText("1")
+                # # listnum.setObjectName("listnum")
+                # listprice = QtWidgets.QLabel(mylist)
+                # listprice.setGeometry(QtCore.QRect(650, 0, 151, 30))
+                # listprice.setAlignment(QtCore.Qt.AlignCenter)
+                # listprice.setText("%.2f" % float(data[6] * data[7]))
+                # # listprice.setObjectName("listprice")
+                # # 自定义控件
+                # item = QtWidgets.QListWidgetItem()
+                # item.setSizeHint(QtCore.QSize(820, 30))
+                # # items->setSizeHint(QSize(1000, 32));
+                # self.listWidget.addItem(item)
+                # self.listWidget.setItemWidget(item, mylist)
             else:
                 self.salemessage.setText("找不到该商品")
                 print('找不到？')
