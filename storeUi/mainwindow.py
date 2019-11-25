@@ -704,16 +704,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.fixer_commit.clicked.connect(self.press_fixer_commit_btn)
 
         self.admin_change_log.clicked.connect(self.press_change_logs_btn)
-
-        self.admin_manager_user.clicked.connect(self.managerUser)
         self.admin_registered.clicked.connect(self.registered_user)
         self.admin_delete_user.clicked.connect(self.delete_user)
         self.admin_change_user.clicked.connect(self.changeUser)
 
+        self.admin_change_logs_page.clicked.connect(self.press_change_logs)
+        self.admin_manager_user_page.clicked.connect(self.managerUser)
+        self.admin_record_drives_page.clicked.connect(self.press_drives_record_btn)
+        # TODO 点击维修按钮，跳转到维修人员页面处理
+        self.admin_fix_drives_page.clicked.connect(self.press_drives_record_btn)
+
         self.customer_button.clicked.connect(self.customerInfo)
         self.changestoresattributes.clicked.connect(self.press_drives_record_btn)
-        self.record_drives.clicked.connect(self.press_drives_record_btn)
-        self.change_logs.clicked.connect(self.press_change_logs)
         self.buttonexportexecl.clicked.connect(self.exportExecl)
         self.queryCustomerInfoButton.clicked.connect(self.queryCustomerInfo)
         self.querySalesInfoButton.clicked.connect(self.querySalesInfo)
