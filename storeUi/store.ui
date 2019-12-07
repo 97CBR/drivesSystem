@@ -57,7 +57,7 @@ background-color: rgb(230, 230, 230);
 }</string>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="loginwidget">
      <property name="styleSheet">
@@ -212,6 +212,9 @@ color: rgb(255, 255, 255);</string>
              </property>
              <property name="text">
               <string extracomment="Input"/>
+             </property>
+             <property name="echoMode">
+              <enum>QLineEdit::Password</enum>
              </property>
              <property name="placeholderText">
               <string>Input</string>

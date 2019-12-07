@@ -109,6 +109,7 @@ class Ui_MainWindow(object):
         self.password.setStyleSheet("font: 18pt \"楷体\";\n"
 "color: rgb(255, 255, 255);")
         self.password.setText("")
+        self.password.setEchoMode(QtWidgets.QLineEdit.Password)
         self.password.setObjectName("password")
         self.verticalLayout_2.addWidget(self.password)
         self.login = QtWidgets.QPushButton(self.statu)
@@ -1067,7 +1068,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.stackedWidget.setCurrentIndex(3)
+        self.stackedWidget.setCurrentIndex(0)
         self.adminstacked.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.username, self.password)

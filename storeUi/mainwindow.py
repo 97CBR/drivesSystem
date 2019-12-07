@@ -41,7 +41,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.current_user_id = 0
         self.current_user_name = "cbr"
 
-        # self.my_view()
+
+        self.welcomeUser.setText("")
 
         self.data = StoreMysql().get_devices_info()
 
@@ -73,7 +74,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.userType = ""
         self.current_user_id = 0
         self.current_user_name = ""
+        self.welcomeUser.setText("")
         self.stackedWidget.setCurrentWidget(self.loginwidget)
+        self.record_to_log(self.current_user_name, "退出登录", "退出登录", "退出登录", "成功")
 
     def auto_update_user_info(self):
         self.user_info = StoreMysql().get_userinfo()
@@ -100,8 +103,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if username == info[1]:
                     print("md5密码：", info[2])
                     if pwd == info[2]:
-                        # print('密码输入正常')
-                        self.loginmessage.setText("密码输入正常")
+                        self.loginmessage.setText("密码输入成功")
                         self.userType = info[3]
 
                         self.current_user_id = info[0]
@@ -114,6 +116,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             print("请输入账号和密码")
             self.loginmessage.setText('请输入账号和密码')
+
+        self.username.setText("")
+        self.password.setText("")
 
         if self.userType == 'admin':
             self.welcomeUser.setText("欢迎您：Admin:\t{}".format(self.current_user_name))
@@ -128,6 +133,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             ...
         # print(username,password)
+
+    def record_to_log(self, user_name, drive_name, drive_id, opers, status):
+        record = "user {} 操作 {} 设备ID:{} {}，设备当前状态：{}".format(user_name, drive_name, drive_id, opers, status)
+
+        status = StoreMysql().record_logs(drive_id, record, self.current_user_id)
+        return status
 
     # 添加设备
     def press_drives_entry_btn(self):
@@ -151,8 +162,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                               drive_department=drive_department,
                                               drive_etype=drive_etype, drive_ereason=drive_ereason, now=now)
         if status:
+            # user_name, drive_name, drive_id, opers, status
+            self.record_to_log(self.current_user_name, drive_name, drives_uuid, "采购录入", "成功")
+
             self.ware_message.setText('成功添加')
-            self.my_view()
+            self.reflash_drive_widget()
         else:
             self.ware_message.setText('添加失败')
 
@@ -177,20 +191,27 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                                   drive_specification, drive_product, drive_department, drive_etype,
                                                   drive_ereason)
         if status:
+            # user_name, drive_name, drive_id, opers, status
+            self.record_to_log(self.current_user_name, drive_name, drives_uuid, "修改设备信息", "成功")
             self.ware_message.setText('成功修改')
-            self.my_view()
+            self.reflash_drive_widget()
         else:
+            self.record_to_log(self.current_user_name, drive_name, drives_uuid, "修改设备信息", "失败")
             self.ware_message.setText('修改失败')
 
     def press_drives_delete_btn(self):
         now_row = self.tableWidget.currentRow()
         print("当前行", now_row)
         drives_uuid = self.tableWidget.item(now_row, 0).text()
+        drive_name = self.tableWidget.item(now_row, 1).text()
         status = StoreMysql().delete_devices_info(drives_uuid)
         if status:
+            # user_name, drive_name, drive_id, opers, status
+            self.record_to_log(self.current_user_name, drive_name, drives_uuid, "删除设备", "成功")
             self.ware_message.setText('删除成功')
-            self.my_view()
+            self.reflash_drive_widget()
         else:
+            self.record_to_log(self.current_user_name, drive_name, drives_uuid, "尝试删除设备", "失败")
             self.ware_message.setText('删除失败')
         return True
 
@@ -217,11 +238,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             self.ware_message.setText("查找失败")
 
-    def my_view(self):
+    def reflash_drive_widget(self):
         _translate = QtCore.QCoreApplication.translate
         # self.tableWidget.verticalHeader().setVisible(False)
         item = self.tableWidget.horizontalHeaderItem(5)
-        item.setText(_translate("MainWindow", "进货价格"))
         # item = self.tableWidget.item(0, 0)
 
         self.data = StoreMysql().get_devices_info()
@@ -286,30 +306,34 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # self.count.setText()
         drives_id = self.fixer_search_drives.text()
         if drives_id != '':
-            data = StoreMysql().search_devices(drives_id=drives_id)[0]
-            if data:
-                self.fixer_drive_name.setText(data[1])
-                self.fixer_drive_version.setText(data[4])
-                self.fixer_drive_id.setText(data[0])
-                self.fixer_drive_spec.setText(data[5])
-                self.fixer_drive_status.setText(self.status_dict[data[3]])
-                self.fixer_drive_etpye.setText(data[8])
-                self.fixer_drive_ereason.setText(data[9])
-                self.fixer_drive_department.setText(data[7])
-                # todo 添加信息到 日志表
+            try:
+                data = StoreMysql().search_devices(drives_id=drives_id)[0]
+                if data:
+                    self.fixer_drive_name.setText(data[1])
+                    self.fixer_drive_version.setText(data[4])
+                    self.fixer_drive_id.setText(data[0])
+                    self.fixer_drive_spec.setText(data[5])
+                    self.fixer_drive_status.setText(self.status_dict[data[3]])
+                    self.fixer_drive_etpye.setText(data[8])
+                    self.fixer_drive_ereason.setText(data[9])
+                    self.fixer_drive_department.setText(data[7])
+                    # todo 添加信息到 日志表
 
-                self.fixer_fixing_status.setCurrentIndex(data[3])
+                    self.fixer_fixing_status.setCurrentIndex(data[3])
 
-                record = "user {} 接入 {} 设备ID:{} 进行维修，设备当前状态：{}".format(self.current_user_name, data[1], data[0],
-                                                                       self.status_dict[data[3]])
-
-                status = StoreMysql().record_logs(data[0], record, self.current_user_id)
-                if status:
-                    self.fixer_message.setText("查找设备成功")
-            else:
+                    record = "user {} 接入 {} 设备ID:{} 进行维修，设备当前状态：{}".format(self.current_user_name, data[1], data[0],
+                                                                           self.status_dict[data[3]])
+                    # user_name, drive_name, drive_id, opers, status
+                    status = self.record_to_log(self.current_user_name, data[1], data[0], "进行维修",
+                                                self.status_dict[data[3]])
+                    if status:
+                        self.fixer_message.setText("查找设备成功")
+                else:
+                    self.fixer_message.setText("找不到该设备")
+            except:
                 self.fixer_message.setText("找不到该设备")
         else:
-            self.fixer_message.setText("请输入条形码")
+            self.fixer_message.setText("请输入设备ID")
 
     def press_fixer_commit_btn(self):
         fixer_drive_ereason = self.fixer_drive_ereason.toPlainText()
@@ -320,6 +344,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if self.fixer_fixing_status.currentIndex() == 1:
             self.fixer_driver_etype_ensure.setCurrentIndex(4)
         current_drives_id = self.fixer_drive_id.text()
+        current_drives_name = self.fixer_drive_name.text()
         current_drives_status = self.fixer_fixing_status.currentIndex()
         fixer_driver_etype_ensure = self.fixer_driver_etype_ensure.currentText()
 
@@ -328,8 +353,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if status:
             self.fixer_drive_status.setText(self.status_dict[self.fixer_fixing_status.currentIndex()])
             self.fixer_drive_etpye.setText(self.fixer_driver_etype_ensure.currentText())
+            # user_name, drive_name, drive_id, opers, status
+            self.record_to_log(self.current_user_name, current_drives_name, current_drives_id, "维修更新设备状态", "成功")
             self.fixer_message.setText("更新设备状态成功")
         else:
+            self.record_to_log(self.current_user_name, current_drives_name, current_drives_id, "维修更新设备状态", "失败")
             self.fixer_message.setText("更新设备状态失败")
 
     def managerUser(self):
@@ -365,7 +393,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if status:
                 self.delete_username.clear()
                 self.loginmessage_3.setText('成功删除')
-                self.my_view()
+                self.reflash_drive_widget()
             else:
                 self.delete_username.clear()
 
@@ -382,7 +410,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if statu:
                 self.change_username.clear()
                 self.loginmessage_4.setText('成功修改')
-                self.my_view()
+                self.reflash_drive_widget()
             else:
                 self.change_username.clear()
                 self.loginmessage_4.setText('修改失败')
@@ -522,6 +550,7 @@ border: 2px solid #999999;""")
                         pass
                 else:
                     pass
+
         self.query_message.setText("查询成功")
 
     def press_query_drive_not_fix_btn(self):
@@ -772,7 +801,9 @@ border: 2px solid #999999;""")
             sheet = wbk.add_sheet("sheet1", cell_overwrite_ok=True)
             self.add2execl(sheet)
             wbk.save(filename[0])
+            self.record_to_log(self.current_user_name, "导出操作", "导出操作", "导出操作", "成功")
         except:
+            self.record_to_log(self.current_user_name, "导出操作", "导出操作", "导出操作", "失败")
             self.label_29.setText("导出失败")
 
     def printExecl(self):
@@ -793,7 +824,10 @@ border: 2px solid #999999;""")
                 ".",
                 0
             )
+            # user_name, drive_name, drive_id, opers, status
+            self.record_to_log(self.current_user_name, "打印操作", "打印操作", "打印操作", "成功")
         except:
+            self.record_to_log(self.current_user_name, "打印操作", "打印操作", "打印操作", "失败")
             self.label_29.setText("打印失败")
 
     def add2execl(self, sheet):
