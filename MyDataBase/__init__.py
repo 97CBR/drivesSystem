@@ -67,15 +67,15 @@ class StoreMysql:
                         drive_status, drive_version,
                         drive_specification, drive_product,
                         drive_department,
-                        drive_etype, drive_ereason):
+                        drive_etype, drive_ereason, now):
 
         SQL = "INSERT INTO `drives_management`.`drives`(`uuid`, `name`, `type`, `status`, `version`, `specification`, " \
-              "`product`, `department`, `etpye`, `ereason`) VALUES ('{}', '{}', '{}', {}, '{}', '{}', '{}', '{}', '{}', '{}')".format(
+              "`product`, `department`, `etpye`, `ereason`,`ctime` ) VALUES ('{}', '{}', '{}', {}, '{}', '{}', '{}', '{}', '{}', '{}','{}')".format(
             drives_uuid, drive_name, drive_type,
             drive_status, drive_version,
             drive_specification, drive_product,
             drive_department,
-            drive_etype, drive_ereason)
+            drive_etype, drive_ereason, now)
 
         print(SQL)
         # # 获取下一个ID
@@ -251,9 +251,8 @@ ORDER BY
         data = self.operational_data(sql).fetchall()
         return data
 
-    def update_drives_table(self, uuid, status):
-        sql = "UPDATE `drives_management`.`drives` SET `status` = {} WHERE `uuid` =  '{}'".format(
-            status,
-            uuid)
+    def update_drives_table(self, uuid, etype, eresaon, status):
+        sql = "UPDATE `drives_management`.`drives` SET `status` = {} ,`etpye` = '{}', `ereason` = '{}'  WHERE `uuid` =  '{}'".format(
+            status, etype, eresaon, uuid)
         data = self.operational_data(sql)
         return data

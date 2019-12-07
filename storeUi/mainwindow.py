@@ -41,7 +41,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.current_user_id = 0
         self.current_user_name = "cbr"
 
-        self.my_view()
+        # self.my_view()
 
         self.data = StoreMysql().get_devices_info()
 
@@ -49,6 +49,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.status_dict = {0: 'Error', 1: 'Normal', 2: 'Fixing'}
 
+        # self.horizontalWidget.hide()
+
+        # 拍照片定时器
+        self.timer = QTimer(self)  # 初始化一个定时器
+        self.timer.timeout.connect(self.auto_update_user_info)
+        self.timer.start(1000 * 60 * 5)  # 设置计时间隔并启动
         # self.fixer_fixing_status.addItem()
 
     @staticmethod
@@ -59,7 +65,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     # 退出登录
     def logout(self):
+        self.userType = ""
+        self.current_user_id = 0
+        self.current_user_name = ""
         self.stackedWidget.setCurrentWidget(self.loginwidget)
+
+    def auto_update_user_info(self):
+        self.user_info = StoreMysql().get_userinfo()
 
     # 登录
     def try_login(self):
@@ -71,13 +83,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             pwd = self.calculate_md5(password)
             print("加密", pwd)
             for info in self.user_info:
-                if username in info:
+                if username == info[1]:
                     print("md5密码：", info[2])
                     if pwd == info[2]:
                         # print('密码输入正常')
                         self.loginmessage.setText("密码输入正常")
                         self.userType = info[3]
-                        self.welcomeUser.setText("欢迎您：{}".format(info[1]))
+
                         self.current_user_id = info[0]
                         self.current_user_name = info[1]
                         break
@@ -90,14 +102,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.loginmessage.setText('请输入账号和密码')
 
         if self.userType == 'admin':
+            self.welcomeUser.setText("欢迎您：Admin:\t{}".format(self.current_user_name))
             self.stackedWidget.setCurrentWidget(self.adminwidget)
-        elif self.userType == 'sale':
-            self.stackedWidget.setCurrentWidget(self.salewidget)
-            # self.stackedWidget.setCurrentIndex(1)
-        elif self.userType == 'analyst':
-            self.stackedWidget.setCurrentWidget(self.analysiswidget)
-        elif self.userType == 'ware':
+        elif self.userType == 'recorder':
+            self.welcomeUser.setText("欢迎您：Recorder:\t{}".format(self.current_user_name))
             self.stackedWidget.setCurrentWidget(self.record_drives_widget)
+            # self.stackedWidget.setCurrentIndex(1)
+        elif self.userType == 'fixer':
+            self.welcomeUser.setText("欢迎您：Fixer:\t{}".format(self.current_user_name))
+            self.stackedWidget.setCurrentWidget(self.fixerwidget)
         else:
             ...
         # print(username,password)
@@ -111,17 +124,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         drive_name = self.drive_name.text()
         drive_version = self.drive_version.text()
         drive_specification = self.drive_specification.text()
-        drive_number = int(self.drive_number.text())
+        # TODO 后面解释的时候需要说明 ，设备的情况是根据编号进行唯一确定，不进行后期分配
+        # drive_number = int(self.drive_number.text())
         drive_status = 1
         drive_department = "company"
         drive_etype = "0"
         drive_ereason = "0"
-
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         status = StoreMysql().add_drives2ware(drives_uuid=drives_uuid, drive_name=drive_name, drive_type=drive_type,
                                               drive_status=drive_status, drive_version=drive_version,
                                               drive_specification=drive_specification, drive_product=drive_product,
                                               drive_department=drive_department,
-                                              drive_etype=drive_etype, drive_ereason=drive_ereason)
+                                              drive_etype=drive_etype, drive_ereason=drive_ereason, now=now)
         if status:
             self.ware_message.setText('成功添加')
             self.my_view()
@@ -277,24 +291,34 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
                 self.fixer_fixing_status.setCurrentIndex(data[3])
 
-                record = "user {} 接入 {} 设备ID:{} 进行维修".format(self.current_user_name, data[1], data[0])
+                record = "user {} 接入 {} 设备ID:{} 进行维修，设备当前状态：{}".format(self.current_user_name, data[1], data[0],
+                                                                       self.status_dict[data[3]])
 
                 status = StoreMysql().record_logs(data[0], record, self.current_user_id)
                 if status:
-                    print("日志记录成功")
+                    self.fixer_message.setText("查找设备成功")
             else:
                 self.fixer_message.setText("找不到该设备")
         else:
             self.fixer_message.setText("请输入条形码")
 
     def press_fixer_commit_btn(self):
-
-        # todo 重构所有SQL执行
+        fixer_drive_ereason = self.fixer_drive_ereason.toPlainText()
+        if fixer_drive_ereason == "":
+            return self.fixer_message.setText("更新设备状态失败")
+        else:
+            ...
+        if self.fixer_fixing_status.currentIndex() == 1:
+            self.fixer_driver_etype_ensure.setCurrentIndex(4)
         current_drives_id = self.fixer_drive_id.text()
         current_drives_status = self.fixer_fixing_status.currentIndex()
+        fixer_driver_etype_ensure = self.fixer_driver_etype_ensure.currentText()
 
-        status = StoreMysql().update_drives_table(current_drives_id, current_drives_status)
+        status = StoreMysql().update_drives_table(current_drives_id, fixer_driver_etype_ensure, fixer_drive_ereason,
+                                                  current_drives_status)
         if status:
+            self.fixer_drive_status.setText(self.status_dict[self.fixer_fixing_status.currentIndex()])
+            self.fixer_drive_etpye.setText(self.fixer_driver_etype_ensure.currentText())
             self.fixer_message.setText("更新设备状态成功")
         else:
             self.fixer_message.setText("更新设备状态失败")
@@ -387,17 +411,57 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # self.search_and_add = QtWidgets.QPushButton(self.horizontalLayoutWidget_8)
         self.btn = QtWidgets.QPushButton(self)
 
-        self.btn.setText("返回")
+        self.btn.setText("返回管理页面")
 
         self.btn.setGeometry(QtCore.QRect(840, 620, 121, 41))
         self.btn.setObjectName("btn")
-        self.btn.clicked.connect(self.goBack)
+        self.btn.setStyleSheet("""background-color:rgb(255, 255, 255);
+border-top-right-radius: 15px;
+border-bottom-left-radius:15px;
+border: 2px solid #999999;""")
+        self.btn.clicked.connect(self.go_back_admin_page)
         # self.resign.clicked.connect(self.resignMan)
         self.btn.show()
 
-    def goBack(self):
+    def press_drives_fix_btn(self):
+        self.stackedWidget.setCurrentWidget(self.fixerwidget)
+
+        # self.search_and_add = QtWidgets.QPushButton(self.horizontalLayoutWidget_8)
+        self.btn = QtWidgets.QPushButton(self)
+
+        self.btn.setText("返回管理页面")
+
+        self.btn.setGeometry(QtCore.QRect(840, 620, 121, 41))
+        self.btn.setObjectName("btn")
+        self.btn.setStyleSheet("""background-color:rgb(255, 255, 255);
+        border-top-right-radius: 15px;
+        border-bottom-left-radius:15px;
+        border: 2px solid #999999;""")
+        self.btn.clicked.connect(self.go_back_admin_page)
+        # self.resign.clicked.connect(self.resignMan)
+        self.btn.show()
+
+    def go_back_admin_page(self):
         self.stackedWidget.setCurrentWidget(self.adminwidget)
         self.btn.hide()
+
+    def press_drives_analysis_btn(self):
+        self.stackedWidget.setCurrentWidget(self.analysiswidget)
+
+        # self.search_and_add = QtWidgets.QPushButton(self.horizontalLayoutWidget_8)
+        self.btn = QtWidgets.QPushButton(self)
+
+        self.btn.setText("返回管理页面")
+
+        self.btn.setGeometry(QtCore.QRect(845, 670, 121, 41))
+        self.btn.setObjectName("btn")
+        self.btn.setStyleSheet("""background-color:rgb(255, 255, 255);
+        border-top-right-radius: 15px;
+        border-bottom-left-radius:15px;
+        border: 2px solid #999999;""")
+        self.btn.clicked.connect(self.go_back_admin_page)
+        # self.resign.clicked.connect(self.resignMan)
+        self.btn.show()
 
     # def changeProfit(self):
     #     self.adminstacked.setCurrentWidget(self.changeProfitwidget)
@@ -711,11 +775,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.admin_change_logs_page.clicked.connect(self.press_change_logs)
         self.admin_manager_user_page.clicked.connect(self.managerUser)
         self.admin_record_drives_page.clicked.connect(self.press_drives_record_btn)
-        # TODO 点击维修按钮，跳转到维修人员页面处理
-        self.admin_fix_drives_page.clicked.connect(self.press_drives_record_btn)
+        self.admin_fix_drives_page.clicked.connect(self.press_drives_fix_btn)
+        self.admin_manager_device_page.clicked.connect(self.press_drives_analysis_btn)
 
-        self.customer_button.clicked.connect(self.customerInfo)
-        self.changestoresattributes.clicked.connect(self.press_drives_record_btn)
+        # self.changestoresattributes.clicked.connect(self.press_drives_record_btn)
         self.buttonexportexecl.clicked.connect(self.exportExecl)
         self.queryCustomerInfoButton.clicked.connect(self.queryCustomerInfo)
         self.querySalesInfoButton.clicked.connect(self.querySalesInfo)
