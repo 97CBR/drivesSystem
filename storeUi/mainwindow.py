@@ -57,6 +57,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.timer.start(1000 * 60 * 5)  # 设置计时间隔并启动
         # self.fixer_fixing_status.addItem()
 
+        self.message_clear = QTimer(self)
+
+        self.message_clear.timeout.connect(self.auto_clear_message)
+        self.message_clear.start(1000 * 4)  # 设置计时间隔并启动
+
     @staticmethod
     def calculate_md5(src):
         m = hashlib.md5()
@@ -72,6 +77,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def auto_update_user_info(self):
         self.user_info = StoreMysql().get_userinfo()
+
+    def auto_clear_message(self):
+        self.fixer_message.setText("")
+        self.query_message.setText("")
+        self.ware_message.setText("")
+        self.loginmessage.setText("")
+        self.loginmessage_2.setText("")
+        self.loginmessage_3.setText("")
+        self.loginmessage_4.setText("")
 
     # 登录
     def try_login(self):
@@ -139,10 +153,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if status:
             self.ware_message.setText('成功添加')
             self.my_view()
-            # self.statusbar.setStatusTip("成功添加")
         else:
             self.ware_message.setText('添加失败')
-            # self.statusbar.setStatusTip("添加失败")
 
     def press_drives_change_btn(self):
         now_row = self.tableWidget.currentRow()
@@ -243,9 +255,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         drive_id = self.log_widget.item(now_row, 5).text()
         version = self.log_widget.item(now_row, 6).text()
 
-        # old_id = self.data[now_row][0]
-        #
-        # print(log_id, record, user_id)
         # 修改数据库
         status = StoreMysql().update_admin_log_info(log_id, record, user_id, user_name, drive_name, drive_id, version)
         if status:
@@ -322,13 +331,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.fixer_message.setText("更新设备状态成功")
         else:
             self.fixer_message.setText("更新设备状态失败")
-        # self.listWidget.clear()
-        # self.barcode.clear()
-        # self.price.clear()
-        # self.search_barcode.clear()
-        # self.need_pay.clear()
-        # self.goodsname.clear()
-        # self.customername.clear()
 
     def managerUser(self):
         self.adminstacked.setCurrentWidget(self.manager_man)
@@ -390,7 +392,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def customerInfo(self):
         self.adminstacked.setCurrentWidget(self.customer)
-        data = StoreMysql().get_customerinfo()
+        data = StoreMysql().get_drive_bad_info()
         self.customer_table.setRowCount(len(data))
         for x, info in enumerate(data):
             print(x, info)
@@ -463,23 +465,14 @@ border: 2px solid #999999;""")
         # self.resign.clicked.connect(self.resignMan)
         self.btn.show()
 
-    # def changeProfit(self):
-    #     self.adminstacked.setCurrentWidget(self.changeProfitwidget)
-    #     self.profitreflash()
-    # profitreflash
-
     def press_change_logs(self):
         self.adminstacked.setCurrentWidget(self.change_log_widget)
         self.refresh_logs_widget()
         # profitreflash
 
-    def queryCustomerInfo(self):
-        # item = QtWidgets.QTableWidgetItem()
-        # item.setText('customer')
-        # self.tableWidget.setHorizontalHeaderItem(0, item)
-        # item.setText('customername')
-        # self.tableWidget.setHorizontalHeaderItem(1, item)
-        mydata = StoreMysql().get_column_name('customerinfo')
+    def press_query_drive_good_btn(self):
+
+        mydata = StoreMysql().get_column_name('drives')
         self.execltableWidget.setColumnCount(len(mydata))
         for index, i in enumerate(mydata):
             print(index)
@@ -488,7 +481,7 @@ border: 2px solid #999999;""")
             item.setText(i[0])
             self.execltableWidget.setHorizontalHeaderItem(index, item)
 
-        data = StoreMysql().get_customerinfo()
+        data = StoreMysql().get_drive_normal_info()
         self.execltableWidget.setRowCount(len(data))
         for x, info in enumerate(data):
             print(x, info)
@@ -502,14 +495,11 @@ border: 2px solid #999999;""")
                         pass
                 else:
                     pass
+        self.query_message.setText("查询成功")
 
-    def queryCustomerInfo(self):
-        # item = QtWidgets.QTableWidgetItem()
-        # item.setText('customer')
-        # self.tableWidget.setHorizontalHeaderItem(0, item)
-        # item.setText('customername')
-        # self.tableWidget.setHorizontalHeaderItem(1, item)
-        mydata = StoreMysql().get_column_name('customerinfo')
+    def press_query_drive_bad_btn(self):
+
+        mydata = StoreMysql().get_column_name('drives')
         self.execltableWidget.setColumnCount(len(mydata))
         for index, i in enumerate(mydata):
             print(index)
@@ -518,7 +508,7 @@ border: 2px solid #999999;""")
             item.setText(i[0])
             self.execltableWidget.setHorizontalHeaderItem(index, item)
 
-        data = StoreMysql().get_customerinfo()
+        data = StoreMysql().get_drive_bad_info()
         self.execltableWidget.setRowCount(len(data))
         for x, info in enumerate(data):
             print(x, info)
@@ -532,9 +522,10 @@ border: 2px solid #999999;""")
                         pass
                 else:
                     pass
+        self.query_message.setText("查询成功")
 
-    def querySalesInfo(self):
-        mydata = StoreMysql().get_column_name('salesinfo')
+    def press_query_drive_not_fix_btn(self):
+        mydata = StoreMysql().get_column_name('drives')
         self.execltableWidget.setColumnCount(len(mydata))
         for index, i in enumerate(mydata):
             print(index)
@@ -543,7 +534,8 @@ border: 2px solid #999999;""")
             item.setText(i[0])
             self.execltableWidget.setHorizontalHeaderItem(index, item)
 
-        data = StoreMysql().get_logs_records()
+        data = StoreMysql().get_drive_not_fix_info()
+
         self.execltableWidget.setRowCount(len(data))
         for x, info in enumerate(data):
             print(x, info)
@@ -557,9 +549,10 @@ border: 2px solid #999999;""")
                         pass
                 else:
                     pass
+        self.query_message.setText("查询成功")
 
-    def queryWarehouseInfo(self):
-        mydata = StoreMysql().get_column_name('warehouse')
+    def press_query_drive_fixing_btn(self):
+        mydata = StoreMysql().get_column_name('drives')
         self.execltableWidget.setColumnCount(len(mydata))
         for index, i in enumerate(mydata):
             print(index)
@@ -568,7 +561,8 @@ border: 2px solid #999999;""")
             item.setText(i[0])
             self.execltableWidget.setHorizontalHeaderItem(index, item)
 
-        data = StoreMysql().get_warehouseinfo()
+        data = StoreMysql().get_drive_fixing_info()
+
         self.execltableWidget.setRowCount(len(data))
         for x, info in enumerate(data):
             print(x, info)
@@ -582,38 +576,34 @@ border: 2px solid #999999;""")
                         pass
                 else:
                     pass
+        self.query_message.setText("查询成功")
 
-    # TODO:需要考虑一下合并同一品牌商品的所有商品
-    def queryTop10BankInfo(self):
-        # mydata = StoreMysql().get_column_name('salesinfo')
-        # self.execltableWidget.setColumnCount(len(mydata))
-        # for index, i in enumerate(mydata):
-        #     print(index)
-        #     print(i)
-        #     item = QtWidgets.QTableWidgetItem()
-        #     item.setText(i[0])
-        #     self.execltableWidget.setHorizontalHeaderItem(index, item)
+    def press_query_drive_by_prefix_id_btn(self):
 
-        data = StoreMysql().get_top10_bank
-        self.execltableWidget.setColumnCount(len(data[0]))
-        item = QtWidgets.QTableWidgetItem()
-        item.setText("商品ID")
-        self.execltableWidget.setHorizontalHeaderItem(0, item)
-        item = QtWidgets.QTableWidgetItem()
-        item.setText("品牌")
-        self.execltableWidget.setHorizontalHeaderItem(1, item)
-        item = QtWidgets.QTableWidgetItem()
-        item.setText("品牌最高售出数量")
-        self.execltableWidget.setHorizontalHeaderItem(2, item)
-        item = QtWidgets.QTableWidgetItem()
-        item.setText("利润")
-        self.execltableWidget.setHorizontalHeaderItem(3, item)
+        tmp = self.query_drive_prefix.text()
+        if tmp == "":
+            self.query_message.setText("请输入前缀")
+            return False
+        else:
+            ...
+
+        mydata = StoreMysql().get_column_name('drives')
+        self.execltableWidget.setColumnCount(len(mydata))
+        for index, i in enumerate(mydata):
+            print(index)
+            print(i)
+            item = QtWidgets.QTableWidgetItem()
+            item.setText(i[0])
+            self.execltableWidget.setHorizontalHeaderItem(index, item)
+
+        data = StoreMysql().get_drive_info_by_prefix_info(tmp)
+
         self.execltableWidget.setRowCount(len(data))
         for x, info in enumerate(data):
             print(x, info)
             for y, cell in enumerate(info):
                 print(y, cell)
-                if y < len(data[0]):
+                if y < len(mydata):
                     try:
                         item = QtWidgets.QTableWidgetItem(str(cell))
                         self.execltableWidget.setItem(x, y, item)
@@ -621,57 +611,37 @@ border: 2px solid #999999;""")
                         pass
                 else:
                     pass
-        # for x, info in enumerate(data):
-        #     print(x, info)
-        #     for y, cell in enumerate(info):
-        #         print(y, cell)
-        #         if y < len(data[0]):
-        #             try:
-        #                 if str(cell) != data[x - 1][1]:
-        #                     item = QtWidgets.QTableWidgetItem(str(cell))
-        #                     self.execltableWidget.setItem(x, y, item)
-        #                 elif str(cell) == data[x - 1][1]:
-        #                     try:
-        #                         item = QtWidgets.QTableWidgetItem(str(float( info[-1]) + float(data[x - 1][-1])))
-        #                         self.execltableWidget.setItem(x, y + 1, item)
-        #                         # self.execltableWidget.removeRow(y-1)
-        #                     except:
-        #                         pass
-        #
-        #                     # pass
-        #             except:
-        #                 pass
-        #         else:
-        #             pass
-
-        # self.execltableWidget.setSortingEnabled()
 
         self.execltableWidget.sortByColumn(3, Qt.AscendingOrder)
 
-    def queryTop100GoodsInfo(self):
-        data = StoreMysql().get_top100_goods()
-        self.execltableWidget.setColumnCount(len(data[0]))
-        item = QtWidgets.QTableWidgetItem()
-        item.setText("商品ID")
-        self.execltableWidget.setHorizontalHeaderItem(0, item)
-        item = QtWidgets.QTableWidgetItem()
-        item.setText("商品名")
-        self.execltableWidget.setHorizontalHeaderItem(1, item)
-        item = QtWidgets.QTableWidgetItem()
-        item.setText("品牌")
-        self.execltableWidget.setHorizontalHeaderItem(2, item)
-        item = QtWidgets.QTableWidgetItem()
-        item.setText("条形码")
-        self.execltableWidget.setHorizontalHeaderItem(3, item)
-        item = QtWidgets.QTableWidgetItem()
-        item.setText("销售数量")
-        self.execltableWidget.setHorizontalHeaderItem(4, item)
+    def press_query_drive_by_time_btn(self):
+
+        start_t = self.start_date.text()
+        end_t = self.end_date.text()
+
+        if start_t == end_t:
+            self.query_message.setText("请选择不同时间段")
+            return False
+        else:
+            ...
+
+        mydata = StoreMysql().get_column_name('drives')
+        self.execltableWidget.setColumnCount(len(mydata))
+        for index, i in enumerate(mydata):
+            print(index)
+            print(i)
+            item = QtWidgets.QTableWidgetItem()
+            item.setText(i[0])
+            self.execltableWidget.setHorizontalHeaderItem(index, item)
+
+        data = StoreMysql().get_drive_info_by_time_info(start_t, end_t)
+
         self.execltableWidget.setRowCount(len(data))
         for x, info in enumerate(data):
             print(x, info)
             for y, cell in enumerate(info):
                 print(y, cell)
-                if y < len(data[0]):
+                if y < len(mydata):
                     try:
                         item = QtWidgets.QTableWidgetItem(str(cell))
                         self.execltableWidget.setItem(x, y, item)
@@ -780,15 +750,17 @@ border: 2px solid #999999;""")
 
         # self.changestoresattributes.clicked.connect(self.press_drives_record_btn)
         self.buttonexportexecl.clicked.connect(self.exportExecl)
-        self.queryCustomerInfoButton.clicked.connect(self.queryCustomerInfo)
-        self.querySalesInfoButton.clicked.connect(self.querySalesInfo)
-        self.queryWarehouseInfoButton.clicked.connect(self.queryWarehouseInfo)
-        self.queryTop10BankInfoButton.clicked.connect(self.queryTop10BankInfo)
-        self.queryTop100GoodsInfopushButton.clicked.connect(self.queryTop100GoodsInfo)
-        self.queryGoodsDetailInfoButton.clicked.connect(self.queryGoodsDetailInfo)
-        self.queryRemainLessThan10Button.clicked.connect(self.queryRemainLessThan10)
-        self.querySuggestedPromotionalItemsButton.clicked.connect(self.querySuggestedPromotionalItems)
         self.buttonprintexecl.clicked.connect(self.printExecl)
+
+        self.query_drive_bad.clicked.connect(self.press_query_drive_bad_btn)
+        self.query_drive_not_fix.clicked.connect(self.press_query_drive_not_fix_btn)
+        self.query_drive_fixing.clicked.connect(self.press_query_drive_fixing_btn)
+        self.query_drive_good.clicked.connect(self.press_query_drive_good_btn)
+        self.query_drive_by_prefix_id.clicked.connect(self.press_query_drive_by_prefix_id_btn)
+        self.query_drive_by_time.clicked.connect(self.press_query_drive_by_time_btn)
+
+        # self.queryRemainLessThan10Button.clicked.connect(self.queryRemainLessThan10)
+        # self.querySuggestedPromotionalItemsButton.clicked.connect(self.querySuggestedPromotionalItems)
 
     # DescendingOrder
     def exportExecl(self):

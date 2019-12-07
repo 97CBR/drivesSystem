@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>993</width>
-    <height>765</height>
+    <width>986</width>
+    <height>759</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -297,7 +297,7 @@ color: rgb(255, 255, 255);</string>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_19" stretch="5,1,1">
        <item>
-        <widget class="QLabel" name="label_29">
+        <widget class="QLabel" name="query_message">
          <property name="text">
           <string>导出成功</string>
          </property>
@@ -354,7 +354,7 @@ color: rgb(255, 255, 255);</string>
         <number>30</number>
        </property>
        <item>
-        <widget class="QPushButton" name="querySalesInfoButton">
+        <widget class="QPushButton" name="query_drive_bad">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -367,7 +367,7 @@ color: rgb(255, 255, 255);</string>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="queryCustomerInfoButton">
+        <widget class="QPushButton" name="query_drive_not_fix">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -380,7 +380,7 @@ color: rgb(255, 255, 255);</string>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="queryWarehouseInfoButton">
+        <widget class="QPushButton" name="query_drive_fixing">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -393,7 +393,7 @@ color: rgb(255, 255, 255);</string>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="queryGoodsDetailInfoButton">
+        <widget class="QPushButton" name="query_drive_good">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -401,7 +401,7 @@ color: rgb(255, 255, 255);</string>
           </sizepolicy>
          </property>
          <property name="text">
-          <string>所有商品详细情况</string>
+          <string>正常设备</string>
          </property>
         </widget>
        </item>
@@ -412,71 +412,88 @@ color: rgb(255, 255, 255);</string>
        <rect>
         <x>30</x>
         <y>150</y>
-        <width>961</width>
-        <height>461</height>
+        <width>941</width>
+        <height>441</height>
        </rect>
       </property>
      </widget>
-     <widget class="QWidget" name="horizontalLayoutWidget_4">
+     <widget class="QWidget" name="horizontalLayoutWidget">
       <property name="geometry">
        <rect>
-        <x>0</x>
+        <x>465</x>
         <y>80</y>
-        <width>991</width>
+        <width>501</width>
         <height>41</height>
        </rect>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_21">
-       <property name="spacing">
-        <number>75</number>
-       </property>
-       <property name="leftMargin">
-        <number>30</number>
-       </property>
-       <property name="rightMargin">
-        <number>30</number>
-       </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_15" stretch="6,1,6,2">
        <item>
-        <widget class="QPushButton" name="queryTop10BankInfoButton">
+        <widget class="QDateTimeEdit" name="start_date">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="text">
-          <string>销售 利润 前10品牌</string>
+         <property name="dateTime">
+          <datetime>
+           <hour>0</hour>
+           <minute>0</minute>
+           <second>0</second>
+           <year>2019</year>
+           <month>1</month>
+           <day>1</day>
+          </datetime>
+         </property>
+         <property name="currentSection">
+          <enum>QDateTimeEdit::YearSection</enum>
+         </property>
+         <property name="displayFormat">
+          <string>yyyy-MM-dd  HH:mm:ss</string>
+         </property>
+         <property name="calendarPopup">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="queryTop100GoodsInfopushButton">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
+        <widget class="QLabel" name="label_10">
          <property name="text">
-          <string>销售 数量 前100商品</string>
+          <string>—</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="queryRemainLessThan10Button">
+        <widget class="QDateTimeEdit" name="end_date">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="text">
-          <string>余量警报</string>
+         <property name="dateTime">
+          <datetime>
+           <hour>0</hour>
+           <minute>0</minute>
+           <second>0</second>
+           <year>2019</year>
+           <month>1</month>
+           <day>1</day>
+          </datetime>
+         </property>
+         <property name="currentSection">
+          <enum>QDateTimeEdit::YearSection</enum>
+         </property>
+         <property name="displayFormat">
+          <string>yyyy-MM-dd  HH:mm:ss</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="querySuggestedPromotionalItemsButton">
+        <widget class="QPushButton" name="query_drive_by_time">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -484,7 +501,49 @@ color: rgb(255, 255, 255);</string>
           </sizepolicy>
          </property>
          <property name="text">
-          <string>建议促销商品</string>
+          <string>查询时间段内采购的设备</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="horizontalLayoutWidget_7">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>80</y>
+        <width>361</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_29">
+       <item>
+        <widget class="QLabel" name="label_12">
+         <property name="text">
+          <string>ID前缀</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="query_drive_prefix">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="query_drive_by_prefix_id">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>查询某类设备情况</string>
          </property>
         </widget>
        </item>
@@ -873,15 +932,15 @@ color: rgb(255, 255, 255);</string>
        <rect>
         <x>30</x>
         <y>110</y>
-        <width>911</width>
-        <height>581</height>
+        <width>941</width>
+        <height>571</height>
        </rect>
       </property>
       <property name="styleSheet">
        <string notr="true"/>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="manager_man">
        <widget class="QWidget" name="layoutWidget_2">
@@ -1111,9 +1170,9 @@ color: rgb(255, 255, 255);</string>
         <property name="geometry">
          <rect>
           <x>500</x>
-          <y>300</y>
+          <y>290</y>
           <width>401</width>
-          <height>251</height>
+          <height>261</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_5" stretch="2,2,2,3,3,2">
@@ -1320,50 +1379,23 @@ border-bottom-right-radius:15px;
        </widget>
       </widget>
       <widget class="QWidget" name="customer">
-       <widget class="QTableWidget" name="customer_table">
-        <property name="geometry">
-         <rect>
-          <x>60</x>
-          <y>130</y>
-          <width>801</width>
-          <height>321</height>
-         </rect>
-        </property>
-        <column>
-         <property name="text">
-          <string>ID编号</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>客户名</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>积分</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>上次购买时间</string>
-         </property>
-        </column>
-       </widget>
        <widget class="QLabel" name="label_27">
         <property name="geometry">
          <rect>
-          <x>340</x>
-          <y>80</y>
-          <width>251</width>
-          <height>41</height>
+          <x>170</x>
+          <y>110</y>
+          <width>611</width>
+          <height>361</height>
          </rect>
         </property>
         <property name="text">
-         <string>客户信息</string>
+         <string/>
         </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
+        <property name="pixmap">
+         <pixmap>lg.jpg</pixmap>
+        </property>
+        <property name="scaledContents">
+         <bool>true</bool>
         </property>
        </widget>
       </widget>
@@ -2105,8 +2137,8 @@ color: rgb(0, 0, 0);</string>
    <widget class="QPushButton" name="logoutButton">
     <property name="geometry">
      <rect>
-      <x>960</x>
-      <y>740</y>
+      <x>950</x>
+      <y>730</y>
       <width>24</width>
       <height>24</height>
      </rect>
@@ -2123,7 +2155,7 @@ background-color: rgb(255, 0, 0);
 color: rgb(255, 255, 255);</string>
     </property>
     <property name="text">
-     <string>O</string>
+     <string/>
     </property>
    </widget>
   </widget>
@@ -2137,7 +2169,6 @@ color: rgb(255, 255, 255);</string>
   <tabstop>admin_change_logs_page</tabstop>
   <tabstop>admin_manager_user_page</tabstop>
   <tabstop>execltableWidget</tabstop>
-  <tabstop>customer_table</tabstop>
   <tabstop>tableWidget</tabstop>
   <tabstop>resigner_name</tabstop>
   <tabstop>resigner_password_1</tabstop>
@@ -2155,15 +2186,11 @@ color: rgb(255, 255, 255);</string>
   <tabstop>fixer_search_drives_and_add</tabstop>
   <tabstop>fixer_fixing_status</tabstop>
   <tabstop>fixer_commit</tabstop>
-  <tabstop>querySalesInfoButton</tabstop>
-  <tabstop>queryCustomerInfoButton</tabstop>
-  <tabstop>queryWarehouseInfoButton</tabstop>
-  <tabstop>queryGoodsDetailInfoButton</tabstop>
-  <tabstop>queryTop10BankInfoButton</tabstop>
-  <tabstop>queryTop100GoodsInfopushButton</tabstop>
+  <tabstop>query_drive_bad</tabstop>
+  <tabstop>query_drive_not_fix</tabstop>
+  <tabstop>query_drive_fixing</tabstop>
+  <tabstop>query_drive_good</tabstop>
   <tabstop>fixer_drive_ereason</tabstop>
-  <tabstop>queryRemainLessThan10Button</tabstop>
-  <tabstop>querySuggestedPromotionalItemsButton</tabstop>
   <tabstop>buttonprintexecl</tabstop>
   <tabstop>buttonexportexecl</tabstop>
   <tabstop>drive_uuid</tabstop>

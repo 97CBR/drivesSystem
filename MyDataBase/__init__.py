@@ -165,11 +165,6 @@ class StoreMysql:
         data = self.operational_data(SQL)
         return data
 
-    def get_customerinfo(self):
-        SQL = "SELECT * FROM `customerinfo`"
-        data = self.operational_data(SQL).fetchall()
-        return data
-
     def update_admin_log_info(self, log_id, record, user_id, user_name, drive_name, drive_id, version):
         # 更新salesinfo表
 
@@ -192,57 +187,34 @@ class StoreMysql:
         data = self.operational_data(sql).fetchall()
         return data
 
-    def get_warehouseinfo(self):
-        sql = "SELECT * FROM `warehouse`"
-        data = self.operational_data(sql).fetchall()
-        # print(data)
-        # for x in data:
-        #     print(type(x))
-        #     print(x)
+    def get_drive_bad_info(self):
+        SQL = "SELECT * FROM `drives_management`.`drives` WHERE `status` <> '1'"
+        data = self.operational_data(SQL).fetchall()
         return data
 
-    def get_top10_bank(self):
-        sql = '''SELECT
-	salesinfo.goodsid,
-	salesinfo.bank,
-	salesinfo.profit,
-	SUM( profit ) AS bankprofit 
-FROM
-	salesinfo 
-GROUP BY
-	salesinfo.bank 
-ORDER BY
-	salesinfo.bank ASC 
-	LIMIT 0,
-	1000'''
+    def get_drive_not_fix_info(self):
+        sql = "SELECT * FROM `drives_management`.`drives` WHERE `status` = '0' "
         data = self.operational_data(sql).fetchall()
         return data
 
-    def get_top100_goods(self):
-        sql = '''
-SELECT
-	salesinfo.goodsid,
-	salesinfo.name,
-	salesinfo.bank,
-	salesinfo.barcode,
-	salesinfo.salesnumber
-FROM
-	salesinfo 
-ORDER BY
-	salesinfo.salesnumber DESC 
-	LIMIT 0,
-	100
-	        '''
+    def get_drive_fixing_info(self):
+        sql = "SELECT * FROM `drives_management`.`drives` WHERE `status` = '2'"
         data = self.operational_data(sql).fetchall()
         return data
 
-    def get_goods_detail_info(self):
-        sql = "SELECT * FROM `drives_management`.`allgoodsinfo` ORDER BY `goodsid` LIMIT 0, 1000"
+    def get_drive_normal_info(self):
+        sql = "SELECT * FROM `drives_management`.`drives` WHERE `status` = '1'"
         data = self.operational_data(sql).fetchall()
         return data
 
-    def get_remain_less_than_10(self):
-        sql = "SELECT * FROM `drives_management`.`saleview` WHERE `remainnumber` < orginnumber * 0.1 "
+    def get_drive_info_by_prefix_info(self, prefix):
+        sql = "SELECT * FROM `drives_management`.`drives` WHERE `uuid` LIKE '%{}-%'".format(prefix)
+        data = self.operational_data(sql).fetchall()
+        return data
+
+    def get_drive_info_by_time_info(self, start_time, end_time):
+        sql = "SELECT * FROM `drives_management`.`drives` WHERE `ctime` > '{}' AND `ctime` < '{}'".format(start_time,
+                                                                                                          end_time)
         data = self.operational_data(sql).fetchall()
         return data
 
