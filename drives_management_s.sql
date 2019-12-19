@@ -11,7 +11,7 @@
  Target Server Version : 50553
  File Encoding         : 65001
 
- Date: 16/12/2019 20:37:57
+ Date: 16/12/2019 20:32:43
 */
 
 SET NAMES utf8mb4;
@@ -44,17 +44,9 @@ CREATE TABLE `drives`  (
   `etpye` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '故障类型',
   `ereason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '故障原因',
   `ctime` datetime DEFAULT NULL,
-  `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `mtime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`uuid`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Compact;
-
--- ----------------------------
--- Records of drives
--- ----------------------------
-INSERT INTO `drives` VALUES ('123-456', '的高房价', '昂达', 0, '昂达', '大使馆', '发收到货', 'company', '已维修正常', '线路损坏，导致无法启动，更换模块即可', '2019-12-07 11:44:09', '2019-12-07 15:25:00');
-INSERT INTO `drives` VALUES ('456-123', '哈萨克打开后发', '萨达', 1, '123', 'big', 'guet', 'company', '0', '0', '2019-12-07 16:03:46', '0000-00-00 00:00:00');
-INSERT INTO `drives` VALUES ('456-136', '第三个', '大概', 1, '大法', '的撒发', '那个，五个', 'company', '已维修正常', '更换背板即可', '2019-12-02 11:38:19', '2019-12-07 16:51:20');
-INSERT INTO `drives` VALUES ('652', '打扫房间', '闪电发货', 1, '爱生活', '水电费交换机', '史蒂芬霍金', 'company', '线路', '线路老化', '2019-12-07 11:38:08', '2019-12-07 11:38:18');
 
 -- ----------------------------
 -- Table structure for fixing
@@ -81,18 +73,6 @@ CREATE TABLE `logs`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 28 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Records of logs
--- ----------------------------
-INSERT INTO `logs` VALUES (20, '456-136', 'user marx 接入 第三个 设备ID:456-136 进行维修，设备当前状态：Fixing', 4);
-INSERT INTO `logs` VALUES (21, '退出登录', 'user  操作 退出登录 设备ID:退出登录 退出登录，设备当前状态：成功', 0);
-INSERT INTO `logs` VALUES (22, '退出登录', 'user  操作 退出登录 设备ID:退出登录 退出登录，设备当前状态：成功', 0);
-INSERT INTO `logs` VALUES (23, '退出登录', 'user  操作 退出登录 设备ID:退出登录 退出登录，设备当前状态：成功', 0);
-INSERT INTO `logs` VALUES (24, '456-136', 'user hr 操作 第三个 设备ID:456-136 进行维修，设备当前状态：Fixing', 1);
-INSERT INTO `logs` VALUES (25, '456-136', 'user hr 操作 第三个 设备ID:456-136 维修更新设备状态，设备当前状态：成功', 1);
-INSERT INTO `logs` VALUES (26, '退出登录', 'user  操作 退出登录 设备ID:退出登录 退出登录，设备当前状态：成功', 0);
-INSERT INTO `logs` VALUES (27, '退出登录', 'user  操作 退出登录 设备ID:退出登录 退出登录，设备当前状态：成功', 0);
-
--- ----------------------------
 -- Table structure for users
 -- ----------------------------
 DROP TABLE IF EXISTS `users`;
@@ -103,14 +83,6 @@ CREATE TABLE `users`  (
   `role` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Compact;
-
--- ----------------------------
--- Records of users
--- ----------------------------
-INSERT INTO `users` VALUES (1, 'hr', 'adab7b701f23bb82014c8506d3dc784e', 'admin');
-INSERT INTO `users` VALUES (2, 'cbr', 'adab7b701f23bb82014c8506d3dc784e', 'admin');
-INSERT INTO `users` VALUES (4, 'marx', 'adab7b701f23bb82014c8506d3dc784e', 'fixer');
-INSERT INTO `users` VALUES (5, 'Tina', 'adab7b701f23bb82014c8506d3dc784e', 'recorder');
 
 -- ----------------------------
 -- View structure for log_view

@@ -34,13 +34,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.drive_number.hide()
         self.label_30.hide()
 
-        self.buttonConnect()
+        self.button_connect()
 
         self.user_info = StoreMysql().get_userinfo()
         self.userType = ""
         self.current_user_id = 0
         self.current_user_name = "cbr"
-
 
         self.welcomeUser.setText("")
 
@@ -63,6 +62,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.message_clear.timeout.connect(self.auto_clear_message)
         self.message_clear.start(1000 * 4)  # 设置计时间隔并启动
 
+    # 计算MD5
     @staticmethod
     def calculate_md5(src):
         m = hashlib.md5()
@@ -78,9 +78,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.stackedWidget.setCurrentWidget(self.loginwidget)
         self.record_to_log(self.current_user_name, "退出登录", "退出登录", "退出登录", "成功")
 
+    # 自动更新用户信息表
     def auto_update_user_info(self):
         self.user_info = StoreMysql().get_userinfo()
 
+    # 自动删除提示
     def auto_clear_message(self):
         self.fixer_message.setText("")
         self.query_message.setText("")
@@ -134,6 +136,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             ...
         # print(username,password)
 
+    # 记录到日志表
     def record_to_log(self, user_name, drive_name, drive_id, opers, status):
         record = "user {} 操作 {} 设备ID:{} {}，设备当前状态：{}".format(user_name, drive_name, drive_id, opers, status)
 
@@ -170,6 +173,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             self.ware_message.setText('添加失败')
 
+    # 修改设备信息
     def press_drives_change_btn(self):
         now_row = self.tableWidget.currentRow()
         print("当前行", now_row)
@@ -199,6 +203,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.record_to_log(self.current_user_name, drive_name, drives_uuid, "修改设备信息", "失败")
             self.ware_message.setText('修改失败')
 
+    # 删除设备
     def press_drives_delete_btn(self):
         now_row = self.tableWidget.currentRow()
         print("当前行", now_row)
@@ -215,7 +220,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.ware_message.setText('删除失败')
         return True
 
+    # 查询设备
     def press_drives_query_btn(self):
+        self.reflash_drive_widget()
         name = self.drive_name.text()
         flag = 0
         if name != '':
@@ -238,6 +245,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             self.ware_message.setText("查找失败")
 
+    # 更新设备信息
     def reflash_drive_widget(self):
         _translate = QtCore.QCoreApplication.translate
         # self.tableWidget.verticalHeader().setVisible(False)
@@ -262,6 +270,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 else:
                     pass
 
+    # 修改日志信息
     def press_change_logs_btn(self):
         now_row = self.log_widget.currentRow()
 
@@ -301,6 +310,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 else:
                     pass
 
+    # 查询设备
     def press_search_drives_btn(self):
         print('搜索商品信息')
         # self.count.setText()
@@ -335,6 +345,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             self.fixer_message.setText("请输入设备ID")
 
+    # 维修人员提交
     def press_fixer_commit_btn(self):
         fixer_drive_ereason = self.fixer_drive_ereason.toPlainText()
         if fixer_drive_ereason == "":
@@ -360,9 +371,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.record_to_log(self.current_user_name, current_drives_name, current_drives_id, "维修更新设备状态", "失败")
             self.fixer_message.setText("更新设备状态失败")
 
-    def managerUser(self):
+    # 管理用户
+    def manager_user(self):
         self.adminstacked.setCurrentWidget(self.manager_man)
 
+    # 注册用户
     def registered_user(self):
         username = self.resigner_name.text()
         password_1 = self.resigner_password_1.text()
@@ -386,6 +399,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             self.loginmessage_2.setText("错误")
 
+    # 删除用户
     def delete_user(self):
         username = self.delete_username.text()
         if username != '':
@@ -402,7 +416,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.delete_username.clear()
             self.loginmessage_3.setText('输入用户名')
 
-    def changeUser(self):
+    # 修改用角色
+    def change_user_role(self):
         username = self.change_username.text()
         usertype = self.change_type.currentText()
         if username != '':
@@ -418,23 +433,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.change_username.clear()
             self.loginmessage_4.setText('输入用户名')
 
-    def customerInfo(self):
-        self.adminstacked.setCurrentWidget(self.customer)
-        data = StoreMysql().get_drive_bad_info()
-        self.customer_table.setRowCount(len(data))
-        for x, info in enumerate(data):
-            print(x, info)
-            for y, cell in enumerate(info):
-                print(y, cell)
-                if y < 4:
-                    try:
-                        item = QtWidgets.QTableWidgetItem(str(cell))
-                        self.customer_table.setItem(x, y, item)
-                    except:
-                        pass
-                else:
-                    pass
-
+    # 按下设备录入按钮 - 管理员界面
     def press_drives_record_btn(self):
         self.stackedWidget.setCurrentWidget(self.record_drives_widget)
 
@@ -453,6 +452,7 @@ border: 2px solid #999999;""")
         # self.resign.clicked.connect(self.resignMan)
         self.btn.show()
 
+    # 按下设备修复按钮 - 管理员界面
     def press_drives_fix_btn(self):
         self.stackedWidget.setCurrentWidget(self.fixerwidget)
 
@@ -471,10 +471,12 @@ border: 2px solid #999999;""")
         # self.resign.clicked.connect(self.resignMan)
         self.btn.show()
 
+    # 按下返回管理员界面- 管理员界面
     def go_back_admin_page(self):
         self.stackedWidget.setCurrentWidget(self.adminwidget)
         self.btn.hide()
 
+    # 按下设备分析按钮 管理员界面
     def press_drives_analysis_btn(self):
         self.stackedWidget.setCurrentWidget(self.analysiswidget)
 
@@ -493,11 +495,13 @@ border: 2px solid #999999;""")
         # self.resign.clicked.connect(self.resignMan)
         self.btn.show()
 
+    # 按下修改日志 管理员界面
     def press_change_logs(self):
         self.adminstacked.setCurrentWidget(self.change_log_widget)
         self.refresh_logs_widget()
         # profitreflash
 
+    # 查询正常设备
     def press_query_drive_good_btn(self):
 
         mydata = StoreMysql().get_column_name('drives')
@@ -525,6 +529,7 @@ border: 2px solid #999999;""")
                     pass
         self.query_message.setText("查询成功")
 
+    # 查询损坏设备
     def press_query_drive_bad_btn(self):
 
         mydata = StoreMysql().get_column_name('drives')
@@ -553,6 +558,7 @@ border: 2px solid #999999;""")
 
         self.query_message.setText("查询成功")
 
+    # 查询未修设备
     def press_query_drive_not_fix_btn(self):
         mydata = StoreMysql().get_column_name('drives')
         self.execltableWidget.setColumnCount(len(mydata))
@@ -580,6 +586,7 @@ border: 2px solid #999999;""")
                     pass
         self.query_message.setText("查询成功")
 
+    # 查询正在修理设备
     def press_query_drive_fixing_btn(self):
         mydata = StoreMysql().get_column_name('drives')
         self.execltableWidget.setColumnCount(len(mydata))
@@ -607,6 +614,7 @@ border: 2px solid #999999;""")
                     pass
         self.query_message.setText("查询成功")
 
+    # 查询前缀厂商设备
     def press_query_drive_by_prefix_id_btn(self):
 
         tmp = self.query_drive_prefix.text()
@@ -643,6 +651,7 @@ border: 2px solid #999999;""")
 
         self.execltableWidget.sortByColumn(3, Qt.AscendingOrder)
 
+    # 时间段内查询采购设备
     def press_query_drive_by_time_btn(self):
 
         start_t = self.start_date.text()
@@ -679,82 +688,8 @@ border: 2px solid #999999;""")
                 else:
                     pass
 
-    def queryGoodsDetailInfo(self):
-        mydata = StoreMysql().get_column_name('allgoodsinfo')
-        self.execltableWidget.setColumnCount(len(mydata))
-        for index, i in enumerate(mydata):
-            print(index)
-            print(i)
-            item = QtWidgets.QTableWidgetItem()
-            item.setText(i[0])
-            self.execltableWidget.setHorizontalHeaderItem(index, item)
-
-        data = StoreMysql().get_goods_detail_info()
-        self.execltableWidget.setRowCount(len(data))
-        for x, info in enumerate(data):
-            print(x, info)
-            for y, cell in enumerate(info):
-                print(y, cell)
-                if y < len(mydata):
-                    try:
-                        item = QtWidgets.QTableWidgetItem(str(cell))
-                        self.execltableWidget.setItem(x, y, item)
-                    except:
-                        pass
-                else:
-                    pass
-
-    def queryRemainLessThan10(self):
-        mydata = StoreMysql().get_column_name('saleview')
-        self.execltableWidget.setColumnCount(len(mydata))
-        for index, i in enumerate(mydata):
-            print(index)
-            print(i)
-            item = QtWidgets.QTableWidgetItem()
-            item.setText(i[0])
-            self.execltableWidget.setHorizontalHeaderItem(index, item)
-
-        data = StoreMysql().get_remain_less_than_10()
-        self.execltableWidget.setRowCount(len(data))
-        for x, info in enumerate(data):
-            print(x, info)
-            for y, cell in enumerate(info):
-                print(y, cell)
-                if y < len(mydata):
-                    try:
-                        item = QtWidgets.QTableWidgetItem(str(cell))
-                        self.execltableWidget.setItem(x, y, item)
-                    except:
-                        pass
-                else:
-                    pass
-
-    def querySuggestedPromotionalItems(self):
-        mydata = StoreMysql().get_column_name('saleview')
-        self.execltableWidget.setColumnCount(len(mydata))
-        for index, i in enumerate(mydata):
-            print(index)
-            print(i)
-            item = QtWidgets.QTableWidgetItem()
-            item.setText(i[0])
-            self.execltableWidget.setHorizontalHeaderItem(index, item)
-
-        data = StoreMysql().get_suggested_promotional_items()
-        self.execltableWidget.setRowCount(len(data))
-        for x, info in enumerate(data):
-            print(x, info)
-            for y, cell in enumerate(info):
-                print(y, cell)
-                if y < len(mydata):
-                    try:
-                        item = QtWidgets.QTableWidgetItem(str(cell))
-                        self.execltableWidget.setItem(x, y, item)
-                    except:
-                        pass
-                else:
-                    pass
-
-    def buttonConnect(self):
+    # 链接所有按钮
+    def button_connect(self):
         self.login.clicked.connect(self.try_login)
         self.logoutButton.clicked.connect(self.logout)
 
@@ -769,10 +704,10 @@ border: 2px solid #999999;""")
         self.admin_change_log.clicked.connect(self.press_change_logs_btn)
         self.admin_registered.clicked.connect(self.registered_user)
         self.admin_delete_user.clicked.connect(self.delete_user)
-        self.admin_change_user.clicked.connect(self.changeUser)
+        self.admin_change_user.clicked.connect(self.change_user_role)
 
         self.admin_change_logs_page.clicked.connect(self.press_change_logs)
-        self.admin_manager_user_page.clicked.connect(self.managerUser)
+        self.admin_manager_user_page.clicked.connect(self.manager_user)
         self.admin_record_drives_page.clicked.connect(self.press_drives_record_btn)
         self.admin_fix_drives_page.clicked.connect(self.press_drives_fix_btn)
         self.admin_manager_device_page.clicked.connect(self.press_drives_analysis_btn)

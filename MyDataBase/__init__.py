@@ -122,7 +122,7 @@ class StoreMysql:
 
     def delete_devices_info(self, id):
         # 删除goodsinfo表
-        SQL = "DELETE FROM `drives_management`.`drives` WHERE `uuid` = {}".format(id)
+        SQL = "DELETE FROM `drives_management`.`drives` WHERE `uuid` = '{}'".format(id)
         data = self.operational_data(SQL)
 
         # todo 删除fixing表
@@ -161,7 +161,7 @@ class StoreMysql:
         return data
 
     def change_user(self, type, name):
-        SQL = "UPDATE `drives_management`.`users` SET `type` = '{}' WHERE `name` = '{}'".format(type, name)
+        SQL = "UPDATE `drives_management`.`users` SET `role` = '{}' WHERE `name` = '{}'".format(type, name)
         data = self.operational_data(SQL)
         return data
 
