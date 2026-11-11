@@ -536,7 +536,7 @@ ul.plain li.li-grey::before { background: var(--grey); }
     </div>
 
     <div class="fnote" data-reveal>
-      连接凭据 root/root@127.0.0.1:3306 硬编码于 <code class="refd">MyDataBase/__init__.py:11-17</code>；
+      连接凭据 root/****（已脱敏）@127.0.0.1:3306 硬编码于 <code class="refd">MyDataBase/__init__.py:11-17</code>；
       每个业务函数各自 <code class="mono">StoreMysql()</code> 新建连接（mainwindow.py 内 30+ 处实例化），无连接池。
     </div>
   </div>
@@ -921,7 +921,7 @@ ul.plain li.li-grey::before { background: var(--grey); }
       </div>
       <div class="debt">
         <div class="sev"><span class="chip chip-warn">高</span></div>
-        <div class="body"><b>凭据随库入库</b> —— root/root@127.0.0.1:3306 硬编码
+        <div class="body"><b>凭据随库入库</b> —— root/****（已脱敏）@127.0.0.1:3306 硬编码
           （MyDataBase/__init__.py:11-17）；样例数据 4 用户共享 md5("hr") 哈希 adab7b70…784e
           （drives_management.sql:110-113，已本地复算验证）。</div>
       </div>
@@ -1054,7 +1054,7 @@ mysql -uroot -p &lt; drives_management_s.sql
 pip install PyQt5 pymysql xlwt pywin32
 
 # 3) 连接参数核对：MyDataBase/__init__.py:11-17
-#    当前为 root/root@127.0.0.1:3306，库 drives_management
+#    当前为 root/****（已脱敏）@127.0.0.1:3306，库 drives_management
 
 # 4) 启动（仓库根目录执行）
 python -m storeUi.demo
